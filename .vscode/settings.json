@@ -1,0 +1,4 @@
+{
+    "git.ignoreLimitWarning": true,
+    "matlab.mlintpath": "/Applications/MATLAB_R2019a.app/bin/maci64/mlint"
+}
