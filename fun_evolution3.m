@@ -1,16 +1,6 @@
-      function [F,J] = fun_jacobian6(x)
+      function [F,J] = fun_evolution3(x)
+  
  
-%==== This is the version that gives same results as if discrete
-%formulation is used.. We use this function to generate all the results for
-%data_3pi_2
-
-%=== Difference between fun_jacobian and fun_jacobian2 is that in fun_jacobian
-%we used O(h^2) central difference scheme for x' while in fun_jacobian2, we
-%used O(h) backward difference method
-
-% My current understanding is that one should always use backward Euler for
-% 1st order disretization. 
-
 
  %--- in this file, we solve for minimizing bending energy of the ruled surface --
    
@@ -21,21 +11,17 @@
    %--- This is the final version of the analytical jacobian for finite
    %element discretization of the continouous formulation 
   
- %=== Difference between fun_jacobian2 and this file is that in this file,
- %we don't arrest the rotation of the binormal curve. Thus, in this file,
- %we also solve for bz(2,1) and bz(N,1). We realized that arresting bz(2,1)
- %and bz(N,1) to 0 in fun_jacobian2 led to overconstraining the system
- %which resulted in incorrect stability results 
+ % 
  
  %====  This is the version we will use for the paper 
  %===== Data generated using this code is saved in data_3pi_3, data_4pi_3, and data_5pi_3 
  
  
-global  N  N1  u v w    f_b    len id uni err qd bx2 E count bxN h tau rho lm bxg byg bzg sig
-global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
+global  N  N1  u v w    f_b      id   err  E count   h tau rho lm   sig
+global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac   del
 
  
- % x = initial_guess_evolution();
+  % x = initial_evolution3();
       
      count = count+1 ;
   %----- reading input and constructing bx by bz ----
@@ -52,7 +38,7 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
   v             = x(5*N1+3,1)        ;
   w             = x(5*N1+4,1)        ;
   
-  
+ del           = x(5*N1+5,1)        ;
   
   bext(1:3,1) = -[bx(N,1);by(N,1);bz(N,1)];
   bext(4:6,1) = -[bx(2,1);by(2,1);bz(2,1)];
@@ -132,8 +118,8 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
   
   %== For studying the effect of aspect ratio on the lagrange multipliers
   %===
-  
-  %fac = asinh(tau*pi*sig)/(4*pi^3*tau^3);
+  n1 = tau/2/pi;
+  fac = (asinh(n1*pi*sig)/(4*pi^3*n1^3)) +del ;
    
   
   p = 2;
@@ -145,9 +131,9 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
         gmz = gm(3);
         
         
-        f_b(3*p-5,1) = fac*bx4p(p-1,1) + lmp(p-1)*bxp(p,1) + lm(p)*bx2p(p,1) - rho(p-1)*bx(p,1) + gmx;
-        f_b(3*p-4,1) = fac*by4p(p-1,1) + lmp(p-1)*byp(p,1) + lm(p)*by2p(p,1) - rho(p-1)*by(p,1) + gmy;
-        f_b(3*p-3,1) = fac*bz4p(p-1,1) + lmp(p-1)*bzp(p,1) + lm(p)*bz2p(p,1) - rho(p-1)*bz(p,1) + gmz;
+        f_b(3*p-5,1) = fac*bx4p(p-1,1) + lmp(p-1)*bxp(p,1) + lm(p)*bx2p(p,1) - rho(p-1)*bx(p,1) + gmx ;  
+        f_b(3*p-4,1) = fac*by4p(p-1,1) + lmp(p-1)*byp(p,1) + lm(p)*by2p(p,1) - rho(p-1)*by(p,1) + gmy ;  
+        f_b(3*p-3,1) = fac*bz4p(p-1,1) + lmp(p-1)*bzp(p,1) + lm(p)*bz2p(p,1) - rho(p-1)*bz(p,1) + gmz ;
         
         
         f_b(3*N1+p-1,1) = 1/2*(bx(p,1)^2 + by(p,1)^2 + bz(p,1)^2 -1);
@@ -164,9 +150,9 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
   
   ind = 3*p-5:3*p-3;
   
-  jac(ind,ind)     = id*(6*fac/h^4 + lmp(p-1,1)/h -2*lm(p)/h^2-rho(p-1))    ;  
-  jac(ind,ind+3)   = id*(-4*fac/h^4   +lm(p)/h^2)  +om                              ; 
-  jac(ind,ind+6)   = id*1*fac/h^4                                                ;
+  jac(ind,ind)     = id*(6*fac/h^4 + lmp(p-1,1)/h -2*lm(p)/h^2-rho(p-1) )    ;  
+  jac(ind,ind+3)   = id*(-4*fac/h^4   +lm(p)/h^2)  +om                       ; 
+  jac(ind,ind+6)   = id*1*fac/h^4                                            ;
   
   jac(ind,3*N1-2:3*N1) = -id*1*fac/h^4  ;
   
@@ -190,6 +176,7 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
                                (bz(p-1)-bz(p+1))       0             -(bx(p-1)-bx(p+1))  ;
                               -(by(p-1)-by(p+1))  (bx(p-1)-bx(p+1))           0        ] ;  
  
+  jac(5*N1+5,ind) = h*(fac-del)/h^2*([(bx2p(p-1,1)-2*bx2p(p,1)+ bx2p(p+1,1)) (by2p(p-1,1)-2*by2p(p,1)+ by2p(p+1,1)) (bz2p(p-1,1)-2*bz2p(p,1)+ bz2p(p+1,1))])       ;                  
    %-- differentiation with rho
    
    jac(ind,3*N1+p-1) = -[bx(p) ;by(p) ;bz(p)];
@@ -203,16 +190,14 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
                                     (bz(p-1)-bz(p+1))       0             -(bx(p-1)-bx(p+1))  ;
                                    -(by(p-1)-by(p+1))  (bx(p-1)-bx(p+1))           0        ] ;  
     
-                                          
+   jac(ind,5*N1+5) =   [bx4p(p-1,1) ; by4p(p-1,1); bz4p(p-1,1)]      ;                                     
     %======================================================================
   
   %----- Euler--Lagrange and Jacobian at the boundary points 
   
   p = 3;
   
-        gmx = v*bzp(p,1) - w*byp(p,1);
-        gmy = w*bxp(p,1) - u*bzp(p,1); 
-        gmz = u*byp(p,1) - v*bxp(p,1);
+       
         
         gm = om*[bx(p+1)-bx(p-1);by(p+1)-by(p-1);bz(p+1)-bz(p-1)];
         gmx = gm(1);
@@ -220,9 +205,10 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
         gmz = gm(3);
 % %         
         
-        f_b(3*p-5,1) = fac*bx4p(p-1,1) + lmp(p-1)*bxp(p,1) + lm(p)*bx2p(p,1) - rho(p-1)*bx(p,1) + gmx;
-        f_b(3*p-4,1) = fac*by4p(p-1,1) + lmp(p-1)*byp(p,1) + lm(p)*by2p(p,1) - rho(p-1)*by(p,1) + gmy;
-        f_b(3*p-3,1) = fac*bz4p(p-1,1) + lmp(p-1)*bzp(p,1) + lm(p)*bz2p(p,1) - rho(p-1)*bz(p,1) + gmz;
+        f_b(3*p-5,1) = fac*bx4p(p-1,1) + lmp(p-1)*bxp(p,1) + lm(p)*bx2p(p,1) - rho(p-1)*bx(p,1) + gmx  ;
+        f_b(3*p-4,1) = fac*by4p(p-1,1) + lmp(p-1)*byp(p,1) + lm(p)*by2p(p,1) - rho(p-1)*by(p,1) + gmy  ;  
+        f_b(3*p-3,1) = fac*bz4p(p-1,1) + lmp(p-1)*bzp(p,1) + lm(p)*bz2p(p,1) - rho(p-1)*bz(p,1) + gmz  ;
+        
         
         
         f_b(3*N1+p-1,1) = 1/2*(bx(p,1)^2 + by(p,1)^2 + bz(p,1)^2 -1);
@@ -240,7 +226,7 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
   ind = 3*p-5:3*p-3;
   
   jac(ind,ind-3)   = id*(-4*fac/h^4 - lmp(p-1,1)/h + lm(p)/h^2) - om        ;
-  jac(ind,ind)     = id*(6*fac/h^4 + lmp(p-1,1)/h -2*lm(p)/h^2-rho(p-1))        ;  
+  jac(ind,ind)     = id*(6*fac/h^4 + lmp(p-1,1)/h -2*lm(p)/h^2-rho(p-1) )        ;  
   jac(ind,ind+3)   = id*(-4*fac/h^4   +lm(p)/h^2)    +om  ; 
   jac(ind,ind+6)   = id*1*fac/h^4                                             ;
   
@@ -258,7 +244,9 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
   jac(5*N1+2:5*N1+4,ind) =   [ 0                 -(bz(p-1)-bz(p+1))   (by(p-1)-by(p+1))  ;
                                (bz(p-1)-bz(p+1))       0             -(bx(p-1)-bx(p+1))  ;
                               -(by(p-1)-by(p+1))  (bx(p-1)-bx(p+1))           0        ] ;  
- 
+   
+  jac(5*N1+5,ind) = h*(fac-del)/h^2*([(bx2p(p-1,1)-2*bx2p(p,1)+ bx2p(p+1,1)) (by2p(p-1,1)-2*by2p(p,1)+ by2p(p+1,1)) (bz2p(p-1,1)-2*bz2p(p,1)+ bz2p(p+1,1))])       ;                  
+
    %-- differentiation with rho
    
    jac(ind,3*N1+p-1) = -[bx(p) ;by(p) ;bz(p)];
@@ -272,7 +260,8 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
                                     (bz(p-1)-bz(p+1))       0             -(bx(p-1)-bx(p+1))  ;
                                       -(by(p-1)-by(p+1))  (bx(p-1)-bx(p+1))           0        ] ;  
   
-                                          
+   jac(ind,5*N1+5) =   [bx4p(p-1,1) ; by4p(p-1,1); bz4p(p-1,1)]      ;                                     
+                                       
     %======================================================================
   
   
@@ -291,9 +280,10 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
         gmz = gm(3);
         
         
-        f_b(3*p-5,1) = fac*bx4p(p-1,1) + lmp(p-1)*bxp(p,1) + lm(p)*bx2p(p,1) - rho(p-1)*bx(p,1) + gmx;
-        f_b(3*p-4,1) = fac*by4p(p-1,1) + lmp(p-1)*byp(p,1) + lm(p)*by2p(p,1) - rho(p-1)*by(p,1) + gmy;
-        f_b(3*p-3,1) = fac*bz4p(p-1,1) + lmp(p-1)*bzp(p,1) + lm(p)*bz2p(p,1) - rho(p-1)*bz(p,1) + gmz;
+        f_b(3*p-5,1) = fac*bx4p(p-1,1) + lmp(p-1)*bxp(p,1) + lm(p)*bx2p(p,1) - rho(p-1)*bx(p,1) + gmx  ;
+        f_b(3*p-4,1) = fac*by4p(p-1,1) + lmp(p-1)*byp(p,1) + lm(p)*by2p(p,1) - rho(p-1)*by(p,1) + gmy  ;  
+        f_b(3*p-3,1) = fac*bz4p(p-1,1) + lmp(p-1)*bzp(p,1) + lm(p)*bz2p(p,1) - rho(p-1)*bz(p,1) + gmz  ;
+        
         
         
         f_b(3*N1+p-1,1) = 1/2*(bx(p,1)^2 + by(p,1)^2 + bz(p,1)^2 -1);
@@ -313,7 +303,7 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
   
   jac(ind,ind-6)   = id*fac/h^4                                                  ;
   jac(ind,ind-3)   = id*(-4*fac/h^4 - lmp(p-1,1)/h + lm(p)/h^2) - om            ;
-  jac(ind,ind)     = id*(6*fac/h^4 + lmp(p-1,1)/h -2*lm(p)/h^2-rho(p-1))     ;  
+  jac(ind,ind)     = id*(6*fac/h^4 + lmp(p-1,1)/h -2*lm(p)/h^2-rho(p-1) )     ;  
   jac(ind,ind+3)   = id*(-4*fac/h^4   +lm(p)/h^2)    + om                            ; 
   jac(ind,ind+6)   = id*1*fac/h^4                                                ;
   
@@ -331,7 +321,9 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
   jac(5*N1+2:5*N1+4,ind) =   [ 0                 -(bz(p-1)-bz(p+1))   (by(p-1)-by(p+1))  ;
                                (bz(p-1)-bz(p+1))       0             -(bx(p-1)-bx(p+1))  ;
                               -(by(p-1)-by(p+1))  (bx(p-1)-bx(p+1))           0        ] ;  
- 
+   
+  jac(5*N1+5,ind) = h*(fac-del)/h^2*([(bx2p(p-1,1)-2*bx2p(p,1)+ bx2p(p+1,1)) (by2p(p-1,1)-2*by2p(p,1)+ by2p(p+1,1)) (bz2p(p-1,1)-2*bz2p(p,1)+ bz2p(p+1,1))])       ;                  
+
    %-- differentiation with rho
    
    jac(ind,3*N1+p-1) = -[bx(p) ;by(p) ;bz(p)];
@@ -345,7 +337,8 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
                                     (bz(p-1)-bz(p+1))       0             -(bx(p-1)-bx(p+1))  ;
                                       -(by(p-1)-by(p+1))  (bx(p-1)-bx(p+1))           0        ] ;  
 
-                                          
+   jac(ind,5*N1+5) =   [bx4p(p-1,1) ; by4p(p-1,1); bz4p(p-1,1)]      ;                                     
+                                       
     %======================================================================
     end
      
@@ -353,9 +346,7 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
   
   p = N-1;
   
-        gmx = v*bzp(p,1) - w*byp(p,1);
-        gmy = w*bxp(p,1) - u*bzp(p,1);
-        gmz = u*byp(p,1) - v*bxp(p,1);
+       
         
         gm = om*[bx(p+1)-bx(p-1);by(p+1)-by(p-1);bz(p+1)-bz(p-1)];
         gmx = gm(1);
@@ -363,9 +354,10 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
         gmz = gm(3);
         
         
-        f_b(3*p-5,1) = fac*bx4p(p-1,1) + lmp(p-1)*bxp(p,1) + lm(p)*bx2p(p,1) - rho(p-1)*bx(p,1) + gmx;
-        f_b(3*p-4,1) = fac*by4p(p-1,1) + lmp(p-1)*byp(p,1) + lm(p)*by2p(p,1) - rho(p-1)*by(p,1) + gmy;
-        f_b(3*p-3,1) = fac*bz4p(p-1,1) + lmp(p-1)*bzp(p,1) + lm(p)*bz2p(p,1) - rho(p-1)*bz(p,1) + gmz;
+        f_b(3*p-5,1) = fac*bx4p(p-1,1) + lmp(p-1)*bxp(p,1) + lm(p)*bx2p(p,1) - rho(p-1)*bx(p,1) + gmx  ;
+        f_b(3*p-4,1) = fac*by4p(p-1,1) + lmp(p-1)*byp(p,1) + lm(p)*by2p(p,1) - rho(p-1)*by(p,1) + gmy  ;  
+        f_b(3*p-3,1) = fac*bz4p(p-1,1) + lmp(p-1)*bzp(p,1) + lm(p)*bz2p(p,1) - rho(p-1)*bz(p,1) + gmz  ;
+        
         
         
         f_b(3*N1+p-1,1) = 1/2*(bx(p,1)^2 + by(p,1)^2 + bz(p,1)^2 -1);
@@ -384,7 +376,7 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
   
   jac(ind,ind-6)   = id*fac/h^4                                                  ;
   jac(ind,ind-3)   = id*(-4*fac/h^4 - lmp(p-1,1)/h + lm(p)/h^2) - om            ;
-  jac(ind,ind)     = id*(6*fac/h^4 + lmp(p-1,1)/h -2*lm(p)/h^2-rho(p-1))   ;  
+  jac(ind,ind)     = id*(6*fac/h^4 + lmp(p-1,1)/h -2*lm(p)/h^2-rho(p-1) )   ;  
   jac(ind,ind+3)   = id*(-4*fac/h^4   +lm(p)/h^2)             +om                   ; 
    
   
@@ -402,6 +394,8 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
                                (bz(p-1)-bz(p+1))       0             -(bx(p-1)-bx(p+1))  ;
                               -(by(p-1)-by(p+1))  (bx(p-1)-bx(p+1))           0        ] ;  
  
+  jac(5*N1+5,ind) = h*(fac-del)/h^2*([(bx2p(p-1,1)-2*bx2p(p,1)+ bx2p(p+1,1)) (by2p(p-1,1)-2*by2p(p,1)+ by2p(p+1,1)) (bz2p(p-1,1)-2*bz2p(p,1)+ bz2p(p+1,1))])       ;                  
+
    %-- differentiation with rho
    
    jac(ind,3*N1+p-1) = -[bx(p) ;by(p) ;bz(p)];
@@ -415,16 +409,15 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
                                     (bz(p-1)-bz(p+1))       0             -(bx(p-1)-bx(p+1))  ;
                                       -(by(p-1)-by(p+1))  (bx(p-1)-bx(p+1))           0        ] ;  
 
-                                          
+   jac(ind,5*N1+5) =   [bx4p(p-1,1) ; by4p(p-1,1); bz4p(p-1,1)]      ;                                     
+                                       
     %======================================================================
    
  %----- Euler--Lagrange and Jacobian at the boundary points 
   
  p = N;
  
- gmx = v*bzp(p,1) - w*byp(p,1);
- gmy = w*bxp(p,1) - u*bzp(p,1);
- gmz = u*byp(p,1) - v*bxp(p,1);
+ 
  
          gm = om*[bx(p+1)-bx(p-1);by(p+1)-by(p-1);bz(p+1)-bz(p-1)];
          gmx = gm(1);
@@ -432,10 +425,10 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
          gmz = gm(3);
  
  
- 
- f_b(3*p-5,1) = fac*bx4p(p-1,1) + lmp(p-1)*bxp(p,1) + lm(p)*bx2p(p,1) - rho(p-1)*bx(p,1) + gmx;
- f_b(3*p-4,1) = fac*by4p(p-1,1) + lmp(p-1)*byp(p,1) + lm(p)*by2p(p,1) - rho(p-1)*by(p,1) + gmy;
- f_b(3*p-3,1) = fac*bz4p(p-1,1) + lmp(p-1)*bzp(p,1) + lm(p)*bz2p(p,1) - rho(p-1)*bz(p,1) + gmz;
+        f_b(3*p-5,1) = fac*bx4p(p-1,1) + lmp(p-1)*bxp(p,1) + lm(p)*bx2p(p,1) - rho(p-1)*bx(p,1) + gmx  ;
+        f_b(3*p-4,1) = fac*by4p(p-1,1) + lmp(p-1)*byp(p,1) + lm(p)*by2p(p,1) - rho(p-1)*by(p,1) + gmy  ;  
+        f_b(3*p-3,1) = fac*bz4p(p-1,1) + lmp(p-1)*bzp(p,1) + lm(p)*bz2p(p,1) - rho(p-1)*bz(p,1) + gmz  ;
+        
  
  
  f_b(3*N1+p-1,1) = 1/2*(bx(p,1)^2 + by(p,1)^2 + bz(p,1)^2 -1)         ;
@@ -462,7 +455,7 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
  
  jac(ind,ind-6)   = id*fac/h^4                                                  ;
  jac(ind,ind-3)   = id*(-4*fac/h^4 - lmp(p-1,1)/h + lm(p)/h^2) - om           ;
- jac(ind,ind)     = id*(6*fac/h^4 + lmp(p-1,1)/h -2*lm(p)/h^2-rho(p-1))    ;
+ jac(ind,ind)     = id*(6*fac/h^4 + lmp(p-1,1)/h -2*lm(p)/h^2-rho(p-1) )    ;
  
  jac(ind,1:3)     = -id*fac/h^4;
     
@@ -482,7 +475,8 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
   jac(5*N1+2:5*N1+4,ind) =    [ 0                 -(bz(p-1)-bz(p+1))   (by(p-1)-by(p+1))  ;
                                (bz(p-1)-bz(p+1))       0             -(bx(p-1)-bx(p+1))  ;
                               -(by(p-1)-by(p+1))  (bx(p-1)-bx(p+1))           0        ] ;  
- 
+  jac(5*N1+5,ind) = h*(fac-del)/h^2*([(bx2p(p-1,1)-2*bx2p(p,1)+ bx2p(p+1,1)) (by2p(p-1,1)-2*by2p(p,1)+ by2p(p+1,1)) (bz2p(p-1,1)-2*bz2p(p,1)+ bz2p(p+1,1))])       ;                  
+
    %-- differentiation with rho
    
    jac(ind,3*N1+p-1) = -[bx(p) ;by(p) ;bz(p)];
@@ -496,6 +490,8 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
                                     (bz(p-1)-bz(p+1))       0             -(bx(p-1)-bx(p+1))  ;
                                       -(by(p-1)-by(p+1))  (bx(p-1)-bx(p+1))           0        ] ;  
 
+   jac(ind,5*N1+5) =   [bx4p(p-1,1) ; by4p(p-1,1); bz4p(p-1,1)]      ;                                     
+                               
     jac(:,5*N1+2:5*N1+4) = -jac(:,5*N1+2:5*N1+4);
                                           
     %======================================================================
@@ -513,9 +509,13 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
 %   jac(3*N1-1,:) = [];
 %   jac(:,3*N1-1) = [];
 % %   
+bpp = bx2p.*bx2p + by2p.*by2p + bz2p.*bz2p;
+
+f_b(5*N1+5,1) =  (fac-del)/2*(h*(sum(bpp(1:N))) - 16*pi^4*n1^4) - E;
+
   
  F = f_b;
   J = jac;
  err = sqrt(sum(f_b.^2)) ;  
  
-      end
+    end

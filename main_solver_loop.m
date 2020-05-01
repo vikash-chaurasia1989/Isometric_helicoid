@@ -61,7 +61,7 @@ N = 72;
 %  nfold=7;
     % tau1 = 21;
     
- branch =  2;   
+ branch =  1;   
     
  if(branch==1)   % 8.0957344694550208E+00   
 %          tau_3 = [8.09575 8.0958  8.09585 8.096 8.097 8.09975 8.1:.1:9.5 9.6:.1:11.9 12:.1:12.5 12.55 12.552 12.554 12.555 12.556 12.56 12.57 12.6:.1:13.2 13.21 13.215 ...
@@ -117,9 +117,9 @@ N = 72;
   sig = .06;
  
   
-   for p1  = 1:3%48:length(tau1)
+   for p1  = 1:1%48:length(tau1)
        sv = 1;
-       tau =   tau1(p1);
+       tau =  16% tau1(p1);
        
       % n = tau/2/pi;
        
@@ -129,8 +129,11 @@ N = 72;
  
  % var_initial = initial_guess_loop2();
   
-  var_initial = initial_guess_loop8();
+ % var_initial = initial_guess_loop8();
 
+   %=== for evolution 
+   
+  var_initial = initial_guess_evolution();
 
     %var_initial = initial_guess_refine_loop();
 
@@ -152,7 +155,7 @@ N = 72;
    options             = optimset('Display','iter', 'Algorithm','levenberg-marquardt','Jacobian','on', 'TOlFun',10^(-20),'TOlX',10^(-20),'MaxFunEvals',69500  ) ;
   options.MaxIter     = 50000  ;
     %     [x,fval,exitflag,output,qd1] =  fsolve(@fun_curve2 ,var_initial,options)          ;
-        [x,fval,exitflag,output,qd1] =  fsolve(@fun_jacobian8     ,var_initial,options)          ;
+        [x,fval,exitflag,output,qd1] =  fsolve(@fun_jacobian6     ,var_initial,options)          ;
         %      [x,fval,exitflag,output,qd1] =  fsolve(@fun_jacobian7     ,var_initial,options)          ;
 
       % x =  lsqnonlin(@fun_jacobian6 ,var_initial )          ;
@@ -430,7 +433,9 @@ else
      str0 = ['7pi_knot_N' num2str(N) '_tau_' num2str(10^10*tau) '.txt'];
    path =  '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_7pi_4/';
 end
-
+  
+   %== for evolution ==
+   path =  '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_evolution/';
 
 
 strb = ['b_' str0];
@@ -476,10 +481,10 @@ end
    end
 %=== saving the torsion values for a given branch 
 
-if(sv==1)
-strtau = ['tau_branch_' num2str(branch) '.txt'];
-
-fileID = fopen([path strtau],'w');
-fprintf(fileID,'%30.16E   \r\n',tau1' ); 
-fclose(fileID);
-end
+% if(sv==1)
+% strtau = ['tau_branch_' num2str(branch) '.txt'];
+% 
+% fileID = fopen([path strtau],'w');
+% fprintf(fileID,'%30.16E   \r\n',tau1' ); 
+% fclose(fileID);
+% end

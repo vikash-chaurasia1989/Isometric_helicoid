@@ -134,7 +134,7 @@ strLk = ['Linking_branch_' num2str(branch) '.txt'];
  
  
  
-for p1 =  1:length(tau1)
+for p1 =  1:1%length(tau1)
     
     tau =  tau1(p1);
     
