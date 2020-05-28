@@ -500,15 +500,15 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2
   %bz(2) and bz(N)
   J2 = jac;
   
-%   f_b(3,:)      = [];
-%   f_b(3*N1-1,:) = [];
-%   
-%   jac(3,:)      = [];
-%   jac(:,3)      = [];
-%   
-%   jac(3*N1-1,:) = [];
-%   jac(:,3*N1-1) = [];
-%   
+  f_b(3,:)      = [];
+  f_b(3*N1-1,:) = [];
+  
+  jac(3,:)      = [];
+  jac(:,3)      = [];
+  
+  jac(3*N1-1,:) = [];
+  jac(:,3*N1-1) = [];
+  
   
  F = f_b;
   J = jac;

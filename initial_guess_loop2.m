@@ -73,7 +73,7 @@
 % tau = tau1(p1);
  
 if(p1>0)
-    tau2 =  tau1(p1);
+    tau2 =  tau1(p1-1);
     
     if(nfold==3)
         str0 = ['3fold_N' num2str(N) '_tau_' num2str(10^10*tau2) '.txt'];
@@ -161,23 +161,23 @@ w =     temp(3,1);
   
   %fac= asinh(tau*pi*sig)/(4*pi^3*tau^3);
 
-  lm = lm/.001*fac;
-  rho = rho/.001*fac;
-  u = u/.001*fac;
-  v =  v/.001*fac;
-  w =  w/.001*fac;
+%   lm = lm/.001*fac;
+%   rho = rho/.001*fac;
+%   u = u/.001*fac;
+%   v =  v/.001*fac;
+%   w =  w/.001*fac;
  % w =   2.650573192256430e+04
 
 
 
 
-    f =  [b(1:3*N1)  rho' lm' u v    1*w  ]'  ;         % for fun_jacobian6
+    f =  [b(1:3*N1)  rho' lm' u v    0*w  ]'  ;         % for fun_jacobian6
 
   
   %--- fix bz(2) = 0; bz(N) = 0 ---
 %   
-%   f(3,:) = [];
-%   f(3*N1-1,:) = [];
+    f(3,:) = [];
+    f(3*N1-1,:) = [];
 %   
   
   %--- boundary points --

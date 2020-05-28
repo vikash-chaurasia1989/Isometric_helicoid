@@ -61,7 +61,7 @@ N = 72;
 %  nfold=7;
     % tau1 = 21;
     
- branch =  1;   
+ branch =  2;   
     
  if(branch==1)   % 8.0957344694550208E+00   
 %          tau_3 = [8.09575 8.0958  8.09585 8.096 8.097 8.09975 8.1:.1:9.5 9.6:.1:11.9 12:.1:12.5 12.55 12.552 12.554 12.555 12.556 12.56 12.57 12.6:.1:13.2 13.21 13.215 ...
@@ -94,7 +94,7 @@ N = 72;
      
     % tau1 = [1.1984233303215979E+01   11.984235 11.98425  11.9845 11.985 12:.1:25 25.5:.5:34 34.1 34.15 34.155 34.157  34.158 34.159];
      tau1 = [1.1984233303215979E+01   11.984235 11.98425  11.9845 11.985 12:.1:16.5 16.55 16.56 16.561 16.5625 16.565 16.57 16.575...
-              16.6: 16.7 16.8 16.81 16.815 16.8175 16.8176 16.81775 16.818 16.82 16.825 16.85 16.86 16.865 16.8675 16.8685 16.8695 16.869575 16.8696 16.86975 16.8699 16.87 16.875 16.9:.1:25 25.5:.5:34 34.1 34.15 34.155 34.157  34.158 34.159];
+              16.6: 16.7 16.8 16.81 16.815 16.8175 16.8176 16.81775 16.818 16.82 16.825 16.85 16.86 16.865 16.8675 16.8685 16.8695 16.869575 16.8696 16.86975 16.8699 16.87 16.875 16.9:.1:25 25.5:.5:34 34.1 34.15 34.155 34.157  34.158 34.159 34.2];
 
      
      N = 120;
@@ -117,9 +117,9 @@ N = 72;
   sig = .06;
  
   
-   for p1  = 1:1%48:length(tau1)
+   for p1  = 187:187%48:length(tau1)
        sv = 1;
-       tau =  16% tau1(p1);
+       tau =    tau1(p1);
        
       % n = tau/2/pi;
        
@@ -127,13 +127,13 @@ N = 72;
  % for p1 = 1:length(tau_data)
 
  
- % var_initial = initial_guess_loop2();
+  %var_initial = initial_guess_loop();
   
  % var_initial = initial_guess_loop8();
 
    %=== for evolution 
    
-  var_initial = initial_guess_evolution();
+   var_initial = initial_guess_evolution();
 
     %var_initial = initial_guess_refine_loop();
 
@@ -427,10 +427,14 @@ if(nfold==3)
     path = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_3pi_4/';
 elseif(nfold==5)
     str0 =['5pi_knot_N' num2str(N) '_tau_' num2str(10^10*tau) '.txt'];
-    path = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_5pi_4/';
+   % path = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_5pi_4/'; % for no fixed points
+    path = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_5pi_3/'; % for fixed b1 and bN+1
+
 %  
 else
      str0 = ['7pi_knot_N' num2str(N) '_tau_' num2str(10^10*tau) '.txt'];
+     
+   %   str0 = ['9pi_knot_N' num2str(N) '_tau_' num2str(10^10*tau) '.txt'];
    path =  '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_7pi_4/';
 end
   

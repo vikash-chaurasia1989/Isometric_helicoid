@@ -1,4 +1,4 @@
-      function [F,J] = fun_jacobian6(x)
+     function [F,J] = fun_jacobian6(x)
  
 %==== This is the version that gives same results as if discrete
 %formulation is used.. We use this function to generate all the results for
@@ -35,7 +35,7 @@ global  N  N1  u v w    f_b    len id uni err qd bx2 E count bxN h tau rho lm bx
 global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
 
  
- % x = initial_guess_evolution();
+  %x = initial_guess_symmetry();%initial_guess_evolution();
       
      count = count+1 ;
   %----- reading input and constructing bx by bz ----
@@ -53,9 +53,10 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
   w             = x(5*N1+4,1)        ;
   
   
+  or = 1;   % for orientibility 
   
-  bext(1:3,1) = -[bx(N,1);by(N,1);bz(N,1)];
-  bext(4:6,1) = -[bx(2,1);by(2,1);bz(2,1)];
+  bext(1:3,1) = or*[bx(N,1);by(N,1);bz(N,1)];
+  bext(4:6,1) = or*[bx(2,1);by(2,1);bz(2,1)];
   
   om =  [ 0  -w   v  ;
          w   0  -u  ;
@@ -518,4 +519,4 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
   J = jac;
  err = sqrt(sum(f_b.^2)) ;  
  
-      end
+   end

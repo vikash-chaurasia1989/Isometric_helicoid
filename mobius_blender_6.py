@@ -32,6 +32,7 @@ ReadDatafile for midline
 =========================================================================
 '''
 def ReadDataFile_r(FilePath):
+    global fac
     points = []
     #with open(FilePath,"r",encoding='utf-8', errors='ignore') as f:
     with open(FilePath,'r') as f:
@@ -115,7 +116,7 @@ def ReadDataFile_r(FilePath):
 
       l = sum(((rx[0:N-1]-rx[1:N])**2 + (ry[0:N-1]-ry[1:N])**2 +(rz[0:N-1]-rz[1:N])**2)**.5)
 
-      rx,ry,rz = rx/l,ry/l,rz/l
+      rx,ry,rz = fac*rx/l,fac*ry/l,fac*rz/l
 
       points = []
       points.append((float(rx[0]),float(ry[0]),float(rz[0])))
@@ -344,7 +345,7 @@ ReadDatafile
 =========================================================================
     '''
 def ReadDataFile(FilePath):
-    global wd
+    global wd fac
     points = []
     with open(FilePath,'r') as f:
 #      c = csv.reader(f, delimiter=',', skipinitialspace=True)
@@ -443,7 +444,7 @@ def ReadDataFile(FilePath):
 
       l = sum(((rx[0:N-1]-rx[1:N])**2 + (ry[0:N-1]-ry[1:N])**2 +(rz[0:N-1]-rz[1:N])**2)**.5)
 
-      rx,ry,rz = rx/l,ry/l,rz/l
+      rx,ry,rz = fac*rx/l,fac*ry/l,fac*rz/l
       #== Half width of the strip
 
 
@@ -517,7 +518,7 @@ def faceindex(N):
 #strb = path + 'b_7pi_knot_N120_tau_170000000000.txt'
 #strb = path + 'b_' + '7pi_knot_N84_tau_153000000000.txt';#7pi_knot_N168_tau_153.txt'
 
-
+ 
 branch = 2
 
 if branch==1:
@@ -551,14 +552,26 @@ global wd
 wd        = 0.007
 thickness = .15*wd
 #=================
+'''
+branch = 2
+
+path = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' + str(branch) + '/'
+strtau =  'tau_branch_' + str(branch)+ '.txt'
+tau1 = np.loadtxt(strtau)
+
+N = 105
+N1 = N-1
+h = 1/N
+'''
+
 
 p1 =10
 
 tau  =  int(np.around(tau1[p1-1]*(10**10),decimals=0))
 
 print(tau)
-strb =  path + 'b_' + str1 + str(N)+ '_tau_'+ str(tau)+ '.txt'
 
+strb =  path + 'b_' + str1 + str(N)+ '_tau_'+ str(tau)+ '.txt'
 
 
 #strb = path + 'b_' + '5pi_N_120_tau_119842303032.1598_z0.txt';

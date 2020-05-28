@@ -23,7 +23,7 @@
  
  
  
-global  N  N1  u v w    f_b    len id uni err qd bx2 E count bxN h tau rho lm bxg byg bzg sig
+global  N  N1  u v w    f_b    len id uni err qd bx2 E count bxN h tau rho lm bxg byg bzg sig tolB
 global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2
 
  
@@ -531,7 +531,7 @@ Z     = Q(:,num_C+1:num_eq)  ;
      
      B = real(B1(1));
      
-     tolB = 10^-8;
+   %  tolB = 10^-8;
      
      if(abs(B)<tolB)
          stbl=1;

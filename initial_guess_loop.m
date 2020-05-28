@@ -29,7 +29,10 @@
 %  if(p1>32)
 % str0 = ['3fold_N72_tau_' num2str(10*tau1(p1-1)) '_1.txt'];
 %  end
- 
+ str0 = '5pi_knot_N120_tau_330000000000.txt';
+ path =  '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_5pi_2/';
+
+
 strb =  [path 'b_' str0] ;
 strlm = [path 'lm_' str0];
 strrho = [path 'rho_' str0];
@@ -62,7 +65,7 @@ b(1:3:3*N1-2) = bx(2:N,1)  ;
 b(2:3:3*N1-1) = by(2:N,1)  ;
 b(3:3:3*N1)    = bz(2:N,1)  ;
 %====================
-    rho(1:N-1,1) = .01*ones(N1,1)*0;
+%     rho(1:N-1,1) = .01*ones(N1,1)*0;
 %
      u = 0;
      v = 0;
@@ -77,10 +80,10 @@ b(3:3:3*N1)    = bz(2:N,1)  ;
 
 s = linspace(0,1,N+1);
 
-   lm(1:N,1) = -1/(h*tau*(N))*ones(N,1)*0;
-   
-   lm(1:N+1,1) = .3*sin(6*pi*s);
-   rho = -lm(1:N-1,1);
+%    lm(1:N,1) = -1/(h*tau*(N))*ones(N,1)*0;
+%    
+%    lm(1:N+1,1) = .3*sin(6*pi*s);
+%    rho = -lm(1:N-1,1);
 % %=== load uvw ========= 
 % 
 
@@ -156,7 +159,7 @@ bzN2 = bext(6);
 
  
  % f = [b(1:3*N1)  rho' lm' u v w  bx1 by1 bz1 bxN2 byN2 bzN2 ]'  ;  % for fun_jacobian
-   f = [b(1:3*N1)  rho' lm' u v w  ]'  ;         % for fun_jacobian6
+   f = [b(1:3*N1)  rho' lm' u v 0*w  ]'  ;         % for fun_jacobian6
 
   
   %--- fix bz(2) = 0; bz(N) = 0 ---

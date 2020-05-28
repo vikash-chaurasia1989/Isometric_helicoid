@@ -32,6 +32,7 @@ ReadDatafile for midline
 =========================================================================
 '''
 def ReadDataFile_r(FilePath):
+    global fac
     points = []
     #with open(FilePath,"r",encoding='utf-8', errors='ignore') as f:
     with open(FilePath,'r') as f:
@@ -128,7 +129,7 @@ def ReadDataFile_r(FilePath):
 
       l = sum(((rx[0:N-1]-rx[1:N])**2 + (ry[0:N-1]-ry[1:N])**2 +(rz[0:N-1]-rz[1:N])**2)**.5)
 
-      rx,ry,rz = rx/l,ry/l,rz/l
+      rx,ry,rz = fac*rx/l,10*ry/l,10*rz/l
 
       points = []
       points.append((float(rx[0]),float(ry[0]),float(rz[0])))
@@ -341,7 +342,7 @@ ReadDatafile
 =========================================================================
     '''
 def ReadDataFile(FilePath):
-    global wd
+    global wd fac
     points = []
     with open(FilePath,'r') as f:
 #      c = csv.reader(f, delimiter=',', skipinitialspace=True)
@@ -438,7 +439,8 @@ def ReadDataFile(FilePath):
 
       l = sum(((rx[0:N-1]-rx[1:N])**2 + (ry[0:N-1]-ry[1:N])**2 +(rz[0:N-1]-rz[1:N])**2)**.5)
 
-      rx,ry,rz = rx/l,ry/l,rz/l
+      rx,ry,rz = fac*rx/l,10*ry/l,10*rz/l
+
 
       #==== Transforming the midline such that its symmetry plane is parallel to z axis
 
@@ -514,8 +516,10 @@ def faceindex(N):
 '''
 
 #=================
-global wd,nfold
-wd        = 0.007
+global wd,nfold fac
+
+fac = 5    # to resize the band
+wd        = 0.07
 thickness = .15*wd
 cols = (0,0.976, 0.968,1)  # rgb and facealpha for the mobius surface
 
@@ -566,7 +570,7 @@ else:
 ln1 = np.size(tau1)
 
 frame_num = 0
-for i in range(ln1):
+for i in range(2):
 
     frame_num= frame_num+1
     tau  =  int(np.around(tau1[i+10]*(10**10),decimals=0))
