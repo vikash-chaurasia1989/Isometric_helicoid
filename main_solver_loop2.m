@@ -21,14 +21,14 @@ colw = [41,44,52]/255;
 
 
 
-branch = 4;
+branch = 1;
 
 if(branch==1)   % 8.0957344694550208E+00
     
     strtau = ['tau_branch_' num2str(branch) '.txt'];
     path = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_3pi_3/';
     
-    tau2 = load([path strtau]);  % old tau for which we have the data
+%    tau2 = load([path strtau]);  % old tau for which we have the data
     
     tau1 = [8.09409  8.1:.1:46.5];
     
@@ -47,7 +47,7 @@ elseif(branch==2) % 1.1984230303215979E+01
     tau1 =  [1.1984275004796786e+01 11.9875 11.99 12:.1:34 ]   ;%1.197871304796786e+01 tau for symmetric knot
 
     % =============== Branch 3 =====================
-    
+     
 elseif(branch==3) % 1.1984230303215979E+01
     strtau = ['tau_branch_' num2str(branch) '.txt'];
     path = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_7pi_3/';
@@ -57,42 +57,46 @@ elseif(branch==3) % 1.1984230303215979E+01
     tau1 = [1.537950616265322e+01    15.4195 15.425 15.45 15.5:.1:46.5]; % 1.5379706162645375E+01 
     
 else 
-    tau1 = 18.7;%19:.1:46.5;
+    tau1 =  1:.1:20;
 end
 
    
 %==========================================================================
-N = 336;%126; %105;
-N1 = N-1;
-h = 1/N;
-
-nfold=3;
-sig = .06;
+% N = 336;%126; %105;
+% N1 = N-1;
+% h = 1/N;
+% 
+% nfold=3;
+% sig = .06   
 
 
 %=== most symmetric 5pi knot ==
 %str0 = 'branch_2_N120_tau_119842500480_symmetry.txt';%;  % tau = 11.9842500480
 
-for p1  =1:1%308:332%1:1%length(tau1)%length(tau1)%length(tau1)%%262:length(tau1)%1:length(tau1)%3:length(tau1)%48:length(tau1)
+for p1  = 1:1%2:length(tau1)%53:length(tau1)%53:length(tau1)%308:332%1:1%length(tau1)%length(tau1)%length(tau1)%%262:length(tau1)%1:length(tau1)%3:length(tau1)%48:length(tau1)
     sv = 1;
-    tau =   tau1(p1);
+    tau =  8.093946633549898e+00% tau1(p1);8.093946633549898e+00
     
-    tau = 33;
+   % tau = 11;
     
-    var_initial = initial_guess_coil();% initial_guess_symmetry();% initial_guess_evolution2();
+    var_initial = initial_guess_evolution2();%initial_orientable();% initial_guess_symmetry();% initial_guess_evolution2();
     
    % tau = 18.58 ;
    %  tau = 19 ;
     
     
-    count = 1;
+    count = 3;
     %--------------------------- Solver ---------------------------------------
     
     %options.Algorithm   = 'levenberg-marquardt'  ;    %'trust-region-reflective' ;
-    options             = optimset('Display','iter', 'Algorithm','levenberg-marquardt','Jacobian','on', 'TOlFun',10^(-30),'TOlX',10^(-30),'MaxFunEvals',69500  ) ;
-    options.MaxIter     = 50000  ;
-    [x,fval,exitflag,output,qd1] =  fsolve(@fun_jacobian6     ,var_initial,options)          ;
+   algo =1;
    
+   stralgo = {'levenberg-marquardt' ,'trust-region-reflective' ,'trust-region-dogleg'};
+   options             = optimset('Display','iter', 'Algorithm',stralgo{algo},'Jacobian','on', 'TOlFun',10^(-40),'TOlX',10^(-40),'MaxFunEvals',695000  ) ;
+   options.MaxIter     = 50000  ;
+    [x,fval,exitflag,output,qd1] =  fsolve(@fun_jacobian6     ,var_initial,options)          ;
+   % [x,fval,exitflag,output,qd1] =  fsolve(@fun_orientable     ,var_initial,options)          ;
+
     err1(p1) = err;
     %--------------------------------------------------------------------------
     
@@ -180,30 +184,33 @@ for p1  =1:1%308:332%1:1%length(tau1)%length(tau1)%length(tau1)%%262:length(tau1
     if(sv==1)
         
         path = ['/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' num2str(branch) '/'];
-       % str0 = ['branch_' num2str(branch) '_N' num2str(N) '_tau_' num2str(round(10^10*tau)) '.txt'];
+      
+     %   path = ['/Users/rtodres/Documents/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' num2str(branch) '/'];
+
+          str0 = ['branch_' num2str(branch) '_N' num2str(N) '_tau_' num2str(round(10^10*tau)) '.txt'];
         
-        s%tr0 = ['branch_' num2str(branch) '_N' num2str(N) '_tau_' num2str(round(10^10*tau)) '_symmetry.txt'];
+     %   str0 = ['branch_' num2str(branch) '_N' num2str(N) '_tau_' num2str(round(10^10*tau)) '_symmetry.txt'];
         
-       str0 = ['coil_N' num2str(N) '_tau_' num2str(10^10*tau) '.txt'];
+       %str0 = ['coil_N' num2str(N) '_tau_' num2str(10^10*tau) '.txt'];
 
                 
         fileID = fopen([path str0],'w');
         fprintf(fileID,'%30.16E   \r\n',x );
         fclose(fileID);
-        
+    
         
         
     end
 end
 %=== saving the torsion values for a given branch
-sv = 0;
-if(sv==1)
-    strtau = ['tau_branch_' num2str(branch) '.txt'];
-    
-    fileID = fopen([path strtau],'w');
-    fprintf(fileID,'%30.16E   \r\n',tau1' );
-    fclose(fileID);
-end
+%sv = 1;
+% if(sv==1)
+%     strtau = ['tau_branch_' num2str(branch) '.txt'];
+%     
+%     fileID = fopen([path strtau],'w');
+%     fprintf(fileID,'%30.16E   \r\n',tau1' );
+%     fclose(fileID);
+% end
 
 sv2 = 0;
 
@@ -240,3 +247,19 @@ if(sv2==1)
     fclose(fileID);
     
 end
+
+
+kappa2 = sqrt((bx2p.*bx2p + by2p.*by2p + bz2p.*bz2p -tau^4)/tau^2);
+kappa2 = [kappa2(1,1)' kappa2(2:end-1,1)']';
+kappa3 = kappa2-min(kappa2);
+kappa3(N/6+1) = 0;
+kappa3(N/3+1) = 0;
+
+kappa3(N/6+1:2*N/6-1) = -kappa3(N/6-1:-1:1);
+kappa3(N/3) = -kappa3(end);
+kappa3(N/3+1:N/3+N/6-1) = kappa3(N/3-1:-1:N/6+1);
+kappa3(N/2+1:5*N/6-1)  = -kappa3(N/2-1:-1:N/6+1);
+kappa3(5*N/6+1:end) =-kappa3(5*N/6-1:-1:2*N/3);
+
+s3 = linspace(0,1,length(kappa3));
+plot(s3,kappa3);

@@ -15,6 +15,7 @@ tic
   col3 = [47,79,79]/255  ;      % -- color for mode n = 4
    
   col = {col1,col2,col3} ;
+  col = {[0,0,0],[0,0,1],[1,0,0]};
 colw = [41,44,52]/255;
 
 
@@ -86,10 +87,15 @@ for p1  =  1:length(tau1)%262:length(tau1)%1:length(tau1)%3:length(tau1)%48:leng
    
 end
 subplot(1,3,branch)
-plot(tau1/(2*pi),E(branch,1:length(tau1),num_sig),'.','Markersize',25,'color',col{num_sig})
+%plot(tau1/(2*pi),E(branch,1:length(tau1),num_sig),'.','Markersize',25,'color',col{num_sig})
+plot(tau1/(2*pi),E(branch,1:length(tau1),num_sig),'color',col{num_sig})
+
 set(gca,'FontSize',25,'LineWidth',.5)
 hold on
-title('Bending energy')
+pbaspect(subplot(1,3,branch),[1.61 1 1])
+hold on
+hold on
+%title('Bending energy')
 
 box on
 grid on

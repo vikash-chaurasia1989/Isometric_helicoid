@@ -51,10 +51,14 @@ def ReadDataFile_r(FilePath):
     bx[0],by[0],bz[0] = 1,0,0
     bx[N],by[N],bz[N] = -1,0,0
 
+
+
+
     bx[1:N] = xyz[np.arange(0,3*N1-2,3)]
     by[1:N] = xyz[np.arange(1,3*N1-1,3)]
     bz[1:N] = xyz[np.arange(2,3*N1,3)]
 
+    #bx,by,bz = xyz[0:N+1,0],xyz[0:N+1,1],xyz[0:N+1,2]
     bx,by,bz = rotate(bx,by,bz)
 
     '''
@@ -369,9 +373,13 @@ def ReadDataFile(FilePath):
     bx[0],by[0],bz[0] = 1,0,0
     bx[N],by[N],bz[N] = -1,0,0
 
+
+
     bx[1:N] = xyz[np.arange(0,3*N1-2,3)]
     by[1:N] = xyz[np.arange(1,3*N1-1,3)]
     bz[1:N] = xyz[np.arange(2,3*N1,3)]
+
+    #bx,by,bz = xyz[0:N+1,0],xyz[0:N+1,1],xyz[0:N+1,2]
 
     bx,by,bz = rotate(bx,by,bz)
     '''
@@ -419,14 +427,14 @@ def ReadDataFile(FilePath):
     rz = np.transpose(np.zeros((N+1)))
 
     #== Edge 1
-    rx1 = np.transpose(np.zeros((N+1)))
-    ry1 = np.transpose(np.zeros((N+1)))
-    rz1 = np.transpose(np.zeros((N+1)))
+    x1 = np.transpose(np.zeros((N+1)))
+    y1 = np.transpose(np.zeros((N+1)))
+    z1 = np.transpose(np.zeros((N+1)))
 
     #== Edge2
-    rx2 = np.transpose(np.zeros((N+1)))
-    ry2 = np.transpose(np.zeros((N+1)))
-    rz2 = np.transpose(np.zeros((N+1)))
+    x2 = np.transpose(np.zeros((N+1)))
+    y2 = np.transpose(np.zeros((N+1)))
+    z2 = np.transpose(np.zeros((N+1)))
 
     for i in range(N):
         rx[i+1] = rx[i] + tx[i]
@@ -450,13 +458,13 @@ def ReadDataFile(FilePath):
 
 
 
-    rx1 = rx-wd*bx
-    ry1 = ry-wd*by
-    rz1 = rz-wd*bz
+    x1 = rx-wd*bx
+    y1 = ry-wd*by
+    z1 = rz-wd*bz
 
-    rx2 = rx+wd*bx
-    ry2 = ry+wd*by
-    rz2 = rz+wd*bz
+    x2 = rx+wd*bx
+    y2 = ry+wd*by
+    z2 = rz+wd*bz
 
 
     data =  [ [ 0 for i in range(3) ] for j in range(4*N) ]
@@ -464,29 +472,29 @@ def ReadDataFile(FilePath):
     for i in range(N):
         p1 =  np.arange(4*i,4*i+4)
 
-        data[p1[0]][0] = rx1[i]
-        data[p1[0]][1] = ry1[i]
-        data[p1[0]][2] = rz1[i]
+        data[p1[0]][0] = x1[i]
+        data[p1[0]][1] = y1[i]
+        data[p1[0]][2] = z1[i]
 
-        data[p1[1]][0] = rx2[i]
-        data[p1[1]][1] = ry2[i]
-        data[p1[1]][2] = rz2[i]
+        data[p1[1]][0] = x2[i]
+        data[p1[1]][1] = y2[i]
+        data[p1[1]][2] = z2[i]
 
-        data[p1[2]][0] = rx2[i+1]
-        data[p1[2]][1] = ry2[i+1]
-        data[p1[2]][2] = rz2[i+1]
+        data[p1[2]][0] = x2[i+1]
+        data[p1[2]][1] = y2[i+1]
+        data[p1[2]][2] = z2[i+1]
 
-        data[p1[3]][0] = rx1[i+1]
-        data[p1[3]][1] = ry1[i+1]
-        data[p1[3]][2] = rz1[i+1]
-
-
+        data[p1[3]][0] = x1[i+1]
+        data[p1[3]][1] = y1[i+1]
+        data[p1[3]][2] = z1[i+1]
 
 
 
 
 
-    return data
+
+
+    return data,x1,y1,z1,x2,y2,z2
 
 
 '''
@@ -510,6 +518,7 @@ Create face index
 '''
 def rotate(bx,by,bz):
     global th
+    th = np.pi/2
     c, s = np.cos(th), np.sin(th)
     R = np.array(((c, -s), (s, c)))  # rotation matrix
 
@@ -518,12 +527,12 @@ def rotate(bx,by,bz):
     #=== rotating binormal such that bz[0]=1
     for i in range(N+1):
 
-        temp = np.dot(R,np.array((bx[i],bz[i])))
-        bx[i]=temp[0]
+        temp = np.dot(R,np.array((by[i],bz[i])))
+        by[i]=temp[0]
         bz[i]=temp[1]
 
-    return bx,by,bz
-
+    #return bx,by,bz
+    '''
     #=== rotating binormal such that tx[0]=1 or -1
 
     th2 = np.pi/2 - math.atan(by[1]/bx[1])
@@ -538,10 +547,56 @@ def rotate(bx,by,bz):
         temp = np.dot(R,np.array((bx[i],by[i])))
         bx[i]=temp[0]
         by[i]=temp[1]
-
+    '''
     return bx,by,bz
 
 
+'''
+=========================================================================
+Create rulers
+=========================================================================
+'''
+
+def createRulers(x1,y1,z1,x2,y2,z2,nr):
+   global thickness
+   N = len(x1)-1
+
+   dr = int(N/nr)
+
+   ind =  np.linspace(dr,N,nr,endpoint=True)
+
+   color = (0.925, 0.941, 0.8,1)
+   th_rule= thickness/5
+
+   for i in range(0,len(ind)):
+       #=== ith ruler
+       points =[]
+
+       ind2 = int(ind[i])
+
+       x = np.linspace(x1[ind2],x2[ind2],20)
+       y = np.linspace(y1[ind2],y2[ind2],20)
+       z = np.linspace(z1[ind2],z2[ind2],20)
+
+       for j in range(0,len(x)):
+           points.append([x[j],y[j],z[j]])
+
+       orderu = 5
+       curve1 = CreateCurve(points,th_rule,color,orderu)
+       #==== deleting the mysterious end point of the curve
+       bpy.context.view_layer.objects.active = curve1
+       curve1.select_set(True)
+       bpy.ops.object.editmode_toggle()
+        #curveOBJ.select_set(True)
+        #bpy.ops.object.editmode_toggle()
+       bpy.ops.curve.delete(type='VERT')
+       bpy.ops.object.editmode_toggle()
+
+
+def find_nearest(array, value):
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return idx
 
 
 '''
@@ -555,36 +610,67 @@ def rotate(bx,by,bz):
  Creating mobius surface
 =========================================================================
 '''
-global N,fac,wd,th
+global N,fac,wd,th,thickness
 
 th = np.pi/2
-fac = 20
-wd  = fac/10
-thickness = wd/10
-N =   105
+fac = 9
+wd  = fac/40
+
+
+
+
+# For schematic 1, fac = 5, wd  = fac/10
+# For 5pi knot , fac = 5, wd = fac/40
+# For 7pi knot , fac = 5, wd = fac/70
+thickness = wd/20
+
+
+
+# for branch 1 , n=2
+'''
+fac = 8, wd = fac/25, thickness = wd/20
+'''
+# for branch 2, n = 2
+'''
+fac = 15, wd = fac/45, thickness = wd/20
+'''
+
+
+#thickness = wd/25  # for branch 2
+
+#thickness = wd/30  # for branch 3
+
+nr = 6    # number of rulings
+
+N  =  105
 N1 = N-1
-h = 1/N
+h  = 1/N
 
 
 
-branch = 1
+branch = 3
 
 path = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' + str(branch) + '/'
+path = '/Users/rtodres/Documents/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' + str(branch) + '/'
 strtau =  path + 'tau_branch_' + str(branch)+ '.txt'
 tau1 = np.loadtxt(strtau)
 
 
 
+tau2 = 4*2*np.pi   # torsion value for which I want the equilibrium configuration
 
 
-p1 =10
+p1 = find_nearest(tau1,tau2)
+
+#p1 =10
 
 tau  =  int(np.around(tau1[p1-1]*(10**10),decimals=0))
 
 print(tau)
-
-
 #================= Symmetric knots
+
+#  3pi
+strb = ''
 #  1. 5pi knot
 #  path = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch2/'
 #  strb = '5pi_knot_symmetric.txt'
@@ -593,11 +679,13 @@ print(tau)
 #  strb = '7pi_knot_symmetric.txt'
 
 
-#strb = path + 'branch_' + str(branch) + '_N' + str(N) + '_tau_' + str(tau)+ '.txt'
-strb = path +  'branch_1_N105_tau_80940900000.txt'# 'branch_3_N336_tau_153797061627_symmetry.txt'#'branch_3_N168_tau_154195000000_symmetry.txt'#'branch_2_N120_tau_119843000480_symmetry.txt'
+strb = path + 'branch_' + str(branch) + '_N' + str(N) + '_tau_' + str(tau)+ '.txt'
+#strb = path + 'branch_1_N120_tau_80940900000_symmetry.txt'#'b_branch_2_N240_symmetric.txt'# 'branch_3_N336_tau_153797061627_symmetry.txt'#'branch_3_N168_tau_154195000000_symmetry.txt'# 'b_branch_3_N336_symmetric.txt'
 
-cols = (0,0.976, 0.968,1)  # rgb and facealpha for the mobius surface
-verts = ReadDataFile(strb)
+#cols = (0,0.976, 0.968,1)  # rgb and facealpha for the mobius surface
+cols = (0.059511,0.223228,0.708376,1)    # Eliot's suggested color
+verts,x1,y1,z1,x2,y2,z2 = ReadDataFile(strb)
+
 N = int(len(verts)/4)
 faces =  faceindex(N)
  #------------------------------------------------
@@ -673,7 +761,7 @@ bpy.ops.object.shade_smooth()
 '''
 ========================= Creating midline ===================================
 '''
-points = []
+points1 = []
 #points = ReadDataFile(userinput['filedata'])
 # Curve C10     - Trivial shape
 
@@ -686,6 +774,29 @@ curve1 = CreateCurve(points, thickness, colr,orderu)            #create curve
 
 #objs = bpy.data.objects
 #objs.remove(objs["Cube"], do_unlink=True)
+
+
+'''
+=========================================================================
+ Creating rulings
+=========================================================================
+'''
+
+
+ #================== creating rulers
+
+#createRulers(x1,y1,z1,x2,y2,z2,nr)
+
+
+
+
+
+
+
+
+
+
+
 
 #==== Camera location ===
 def update_camera(camera, focus_point=mathutils.Vector((0.0, 0.0, 1.0)), distance=4.0):

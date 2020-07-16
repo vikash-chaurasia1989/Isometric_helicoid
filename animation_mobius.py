@@ -32,71 +32,100 @@ ReadDatafile for midline
 =========================================================================
 '''
 def ReadDataFile_r(FilePath):
+    global fac,N
+    N1 = N-1
+    h = 1/N
+
+
+    xyz = np.loadtxt(FilePath)
+
+
+    bx = np.transpose(np.zeros((N+1)))
+    by = np.transpose(np.zeros((N+1)))
+    bz = np.transpose(np.zeros((N+1)))
+
+    bxp = np.transpose(np.zeros(N+1))
+    byp = np.transpose(np.zeros(N+1))
+    bzp = np.transpose(np.zeros(N+1))
+
+    bx[0],by[0],bz[0] = 1,0,0
+    bx[N],by[N],bz[N] = -1,0,0
+
+    bx[1:N] = xyz[np.arange(0,3*N1-2,3)]
+    by[1:N] = xyz[np.arange(1,3*N1-1,3)]
+    bz[1:N] = xyz[np.arange(2,3*N1,3)]
+
+    bx,by,bz = rotate(bx,by,bz)
+
+    '''
+    fig1 = plt.figure()
+    ax = fig1.add_subplot(111,projection='3d')
+    ax.plot(bx,by,bz)
+    plt.show()
+    '''
+
+    #========================================================
+    #               b'
+    #========================================================
+
+    bxp[0]   = (bx[0]+ bx[N-1])/h
+    byp[0]   = (by[0]+ by[N-1])/h
+    bzp[0]   = (bz[0]+ bz[N-1])/h
+
+    ig = np.arange(1,N+1)
+
+    bxp[ig] = (bx[ig]-bx[ig-1])/h
+    byp[ig] = (by[ig]-by[ig-1])/h
+    bzp[ig] = (bz[ig]-bz[ig-1])/h
+
+
+    #========================================================
+    #               Constructing tangent  t= bxb'
+    #========================================================
+    tx = np.transpose(np.zeros((N+1)))
+    ty = np.transpose(np.zeros((N+1)))
+    tz = np.transpose(np.zeros((N+1)))
+
+    #== tangent ==
+    tx[0:N] = np.multiply(by[0:N],bzp[0:N]) - np.multiply(bz[0:N],byp[0:N])
+    ty[0:N] = np.multiply(bz[0:N],bxp[0:N]) - np.multiply(bx[0:N],bzp[0:N])
+    tz[0:N] = np.multiply(bx[0:N],byp[0:N]) - np.multiply(by[0:N],bxp[0:N])
+
+    #tx[N] = tx[0]#np.insert(tx,N,tx[0,0])
+    #ty[N] = ty[0]#np.insert(ty,N,ty[0,0])
+    #tz[N] = tz[0]#np.insert(tz,N,tz[0,0])
+
+    #========================================================
+
+    #========================================================
+    #           Constructing midline
+    #========================================================
+    #== Midline
+    rx = np.transpose(np.zeros((N+1)))
+    ry = np.transpose(np.zeros((N+1)))
+    rz = np.transpose(np.zeros((N+1)))
+
+    for i in range(N):
+        rx[i+1] = rx[i] + tx[i]
+        ry[i+1] = ry[i] + ty[i]
+        rz[i+1] = rz[i] + tz[i]
+
+    rx = rx - np.mean(rx)
+    ry = ry - np.mean(ry)
+    rz = rz - np.mean(rz)
+
+    l = sum(((rx[0:N-1]-rx[1:N])**2 + (ry[0:N-1]-ry[1:N])**2 +(rz[0:N-1]-rz[1:N])**2)**.5)
+
+    rx,ry,rz = fac*rx/l,fac*ry/l,fac*rz/l
+
     points = []
-    #with open(FilePath,"r",encoding='utf-8', errors='ignore') as f:
-    with open(FilePath,'r') as f:
-
-     # c = csv.reader(f, delimiter=',', skipinitialspace=True)
-      for sRow in f:
-          a,b,c = sRow.split()                                                           # thats an individual object
-          points.append((float(a),float(b),float(c)))
-
-      N = int(len(points)-1)
-      xyz = np.array(points)
+    points.append((float(rx[0]),float(ry[0]),float(rz[0])))
+    for i in range(N):
+         points.append((float(rx[i+1]),float(ry[i+1]),float(rz[i+1])))
 
 
-      bx = np.transpose(np.zeros((N+1)))
-      by = np.transpose(np.zeros((N+1)))
-      bz = np.transpose(np.zeros((N+1)))
 
-      bx,by,bz = xyz[0:N+1,0],xyz[0:N+1,1],xyz[0:N+1,2]
 
-      '''
-      fig1 = plt.figure()
-      ax = fig1.add_subplot(111,projection='3d')
-      ax.plot(bx,by,bz)
-      plt.show()
-      '''
-
-      #========================================================
-      #               Constructing tangent
-      #========================================================
-      tx = np.transpose(np.zeros((N+1)))
-      ty = np.transpose(np.zeros((N+1)))
-      tz = np.transpose(np.zeros((N+1)))
-
-      #== tangent ==
-      tx[0:N] = np.multiply(by[0:N],bz[1:N+1]) - np.multiply(bz[0:N],by[1:N+1])
-      ty[0:N] = np.multiply(bz[0:N],bx[1:N+1]) - np.multiply(bx[0:N],bz[1:N+1])
-      tz[0:N] = np.multiply(bx[0:N],by[1:N+1]) - np.multiply(by[0:N],bx[1:N+1])
-
-      tx[N] = tx[0]#np.insert(tx,N,tx[0,0])
-      ty[N] = ty[0]#np.insert(ty,N,ty[0,0])
-      tz[N] = tz[0]#np.insert(tz,N,tz[0,0])
-
-      #========================================================
-
-      #========================================================
-      #           Constructing midline
-      #========================================================
-      #== Midline
-      rx = np.transpose(np.zeros((N+1)))
-      ry = np.transpose(np.zeros((N+1)))
-      rz = np.transpose(np.zeros((N+1)))
-
-      for i in range(N):
-          rx[i+1] = rx[i] + tx[i]
-          ry[i+1] = ry[i] + ty[i]
-          rz[i+1] = rz[i] + tz[i]
-
-      rx = rx - np.mean(rx)
-      ry = ry - np.mean(ry)
-      rz = rz - np.mean(rz)
-
-      points = []
-      points.append((float(rx[0]),float(ry[0]),float(rz[0])))
-      for i in range(N):
-           points.append((float(rx[i+1]),float(ry[i+1]),float(rz[i+1])))
     return points
 
 
@@ -266,6 +295,8 @@ def CreateCurve(points,thickness,colr):
     #light_object.select_set(True)
     #view_layer.objects.active = light_object
     #light_object.select_set(True)
+
+    '''
     light_data = bpy.data.lights.new(name="New Light", type='POINT')
 
     # Create new object with our light datablock.
@@ -281,7 +312,7 @@ def CreateCurve(points,thickness,colr):
 # And finally select it and make it active.
     light_object.select_set(True)
     view_layer.objects.active = light_object
-
+    '''
 
     mat = bpy.data.materials.new("matBase")
     #mat.diffuse_intensity = 1.0
@@ -304,140 +335,138 @@ ReadDatafile
 =========================================================================
     '''
 def ReadDataFile(FilePath):
-    points = []
-    with open(FilePath,'r') as f:
-#      c = csv.reader(f, delimiter=',', skipinitialspace=True)
-      # c = csv.reader(f, delimiter=',', skipinitialspace=True)
-      for sRow in f:
-          a,b,c = sRow.split()                                                                 # thats an individual object
-          points.append((float(a),float(b),float(c)))
-      #==== Converting from object to numerical array
-
-      N = int(len(points)-1)
-      xyz = np.array(points)
-
-      bx = np.transpose(np.zeros((N+1)))
-      by = np.transpose(np.zeros((N+1)))
-      bz = np.transpose(np.zeros((N+1)))
-
-      bx,by,bz = xyz[0:N+1,0],xyz[0:N+1,1],xyz[0:N+1,2]
-      '''
-      # =========================================================================
-      #  Code for linear interpolation
-      #  =========================================================================
-      bx1 = np.transpose(np.zeros((N+1)))
-      by1 = np.transpose(np.zeros((N+1)))
-      bz1 = np.transpose(np.zeros((N+1)))
-
-      N2 = 1000;
-      bx = np.transpose(np.zeros((N2+1)))
-      by = np.transpose(np.zeros((N2+1)))
-      bz = np.transpose(np.zeros((N2+1)))
+    global fac,N,wd
+    N1 = N-1
+    h = 1/N
+    xyz = np.loadtxt(FilePath)
 
 
-      bx1,by1,bz1 = xyz[0:N+1,0],xyz[0:N+1,1],xyz[0:N+1,2]
+    bx = np.transpose(np.zeros((N+1)))
+    by = np.transpose(np.zeros((N+1)))
+    bz = np.transpose(np.zeros((N+1)))
 
-      #==== Linear interpolation
-      s1 = np.transpose(np.linspace(0,1,N+1))
-      s2 = np.transpose(np.linspace(0,1,N2+1))
+    bxp = np.transpose(np.zeros(N+1))
+    byp = np.transpose(np.zeros(N+1))
+    bzp = np.transpose(np.zeros(N+1))
 
-      bx = np.interp(s2,s1,bx1)
-      by = np.interp(s2,s1,by1)
-      bz = np.interp(s2,s1,bz1)
+    bx[0],by[0],bz[0] = 1,0,0
+    bx[N],by[N],bz[N] = -1,0,0
 
-      N = N2;
-      h = 1/N;
-      '''
+    bx[1:N] = xyz[np.arange(0,3*N1-2,3)]
+    by[1:N] = xyz[np.arange(1,3*N1-1,3)]
+    bz[1:N] = xyz[np.arange(2,3*N1,3)]
 
-      '''
-      fig1 = plt.figure()
-      ax = fig1.add_subplot(111,projection='3d')
-      ax.plot(bx,by,bz)
-      plt.show()
-      '''
+    bx,by,bz = rotate(bx,by,bz)
+    '''
+    fig1 = plt.figure()
+    ax = fig1.add_subplot(111,projection='3d')
+    ax.plot(bx,by,bz)
+    plt.show()
+    '''
 
-      #========================================================
-      #               Constructing tangent
-      #========================================================
-      tx = np.transpose(np.zeros((N+1)))
-      ty = np.transpose(np.zeros((N+1)))
-      tz = np.transpose(np.zeros((N+1)))
+    #========================================================
+    #               b'
+    #========================================================
 
-      #== tangent ==
-      tx[0:N] = np.multiply(by[0:N],bz[1:N+1]) - np.multiply(bz[0:N],by[1:N+1])
-      ty[0:N] = np.multiply(bz[0:N],bx[1:N+1]) - np.multiply(bx[0:N],bz[1:N+1])
-      tz[0:N] = np.multiply(bx[0:N],by[1:N+1]) - np.multiply(by[0:N],bx[1:N+1])
+    bxp[0]   = (bx[0]+ bx[N-1])/h
+    byp[0]   = (by[0]+ by[N-1])/h
+    bzp[0]   = (bz[0]+ bz[N-1])/h
 
-      tx[N] = tx[0]#np.insert(tx,N,tx[0,0])
-      ty[N] = ty[0]#np.insert(ty,N,ty[0,0])
-      tz[N] = tz[0]#np.insert(tz,N,tz[0,0])
+    ig = np.arange(1,N+1)
 
-      #========================================================
-
-      #========================================================
-      #           Constructing midline
-      #========================================================
-      #== Midline
-      rx = np.transpose(np.zeros((N+1)))
-      ry = np.transpose(np.zeros((N+1)))
-      rz = np.transpose(np.zeros((N+1)))
-
-      #== Edge 1
-      rx1 = np.transpose(np.zeros((N+1)))
-      ry1 = np.transpose(np.zeros((N+1)))
-      rz1 = np.transpose(np.zeros((N+1)))
-
-      #== Edge2
-      rx2 = np.transpose(np.zeros((N+1)))
-      ry2 = np.transpose(np.zeros((N+1)))
-      rz2 = np.transpose(np.zeros((N+1)))
-
-      for i in range(N):
-          rx[i+1] = rx[i] + tx[i]
-          ry[i+1] = ry[i] + ty[i]
-          rz[i+1] = rz[i] + tz[i]
+    bxp[ig] = (bx[ig]-bx[ig-1])/h
+    byp[ig] = (by[ig]-by[ig-1])/h
+    bzp[ig] = (bz[ig]-bz[ig-1])/h
 
 
-     # Transforming the midline
-      rx = rx - np.mean(rx)
-      ry = ry - np.mean(ry)
-      rz = rz - np.mean(rz)
+    #========================================================
+    #               Constructing tangent  t= bxb'
+    #========================================================
+    tx = np.transpose(np.zeros((N+1)))
+    ty = np.transpose(np.zeros((N+1)))
+    tz = np.transpose(np.zeros((N+1)))
+
+    #== tangent ==
+    tx[0:N] = np.multiply(by[0:N],bzp[0:N]) - np.multiply(bz[0:N],byp[0:N])
+    ty[0:N] = np.multiply(bz[0:N],bxp[0:N]) - np.multiply(bx[0:N],bzp[0:N])
+    tz[0:N] = np.multiply(bx[0:N],byp[0:N]) - np.multiply(by[0:N],bxp[0:N])
+
+    #========================================================
+
+    #========================================================
+    #           Constructing midline
+    #========================================================
+    #== Midline
+    rx = np.transpose(np.zeros((N+1)))
+    ry = np.transpose(np.zeros((N+1)))
+    rz = np.transpose(np.zeros((N+1)))
+
+    #== Edge 1
+    x1 = np.transpose(np.zeros((N+1)))
+    y1 = np.transpose(np.zeros((N+1)))
+    z1 = np.transpose(np.zeros((N+1)))
+
+    #== Edge2
+    x2 = np.transpose(np.zeros((N+1)))
+    y2 = np.transpose(np.zeros((N+1)))
+    z2 = np.transpose(np.zeros((N+1)))
+
+    for i in range(N):
+        rx[i+1] = rx[i] + tx[i]
+        ry[i+1] = ry[i] + ty[i]
+        rz[i+1] = rz[i] + tz[i]
 
 
-      #== Half width of the strip
-
-      wd = 0.1
-
-
-      rx1 = rx-wd*bx
-      ry1 = ry-wd*by
-      rz1 = rz-wd*bz
-
-      rx2 = rx+wd*bx
-      ry2 = ry+wd*by
-      rz2 = rz+wd*bz
+   # Transforming the midline
+    rx = rx - np.mean(rx)
+    ry = ry - np.mean(ry)
+    rz = rz - np.mean(rz)
 
 
-      data =  [ [ 0 for i in range(3) ] for j in range(4*N) ]
+    #== Half width of the strip
 
-      for i in range(N):
-          p1 =  np.arange(4*i,4*i+4)
+    l = sum(((rx[0:N-1]-rx[1:N])**2 + (ry[0:N-1]-ry[1:N])**2 +(rz[0:N-1]-rz[1:N])**2)**.5)
 
-          data[p1[0]][0] = rx1[i]
-          data[p1[0]][1] = ry1[i]
-          data[p1[0]][2] = rz1[i]
+    rx,ry,rz = fac*rx/l,fac*ry/l,fac*rz/l
+    #== Half width of the strip
 
-          data[p1[1]][0] = rx2[i]
-          data[p1[1]][1] = ry2[i]
-          data[p1[1]][2] = rz2[i]
 
-          data[p1[2]][0] = rx2[i+1]
-          data[p1[2]][1] = ry2[i+1]
-          data[p1[2]][2] = rz2[i+1]
 
-          data[p1[3]][0] = rx1[i+1]
-          data[p1[3]][1] = ry1[i+1]
-          data[p1[3]][2] = rz1[i+1]
+
+    x1 = rx-wd*bx
+    y1 = ry-wd*by
+    z1 = rz-wd*bz
+
+    x2 = rx+wd*bx
+    y2 = ry+wd*by
+    z2 = rz+wd*bz
+
+
+    data =  [ [ 0 for i in range(3) ] for j in range(4*N) ]
+
+    for i in range(N):
+        p1 =  np.arange(4*i,4*i+4)
+
+        data[p1[0]][0] = x1[i]
+        data[p1[0]][1] = y1[i]
+        data[p1[0]][2] = z1[i]
+
+        data[p1[1]][0] = x2[i]
+        data[p1[1]][1] = y2[i]
+        data[p1[1]][2] = z2[i]
+
+        data[p1[2]][0] = x2[i+1]
+        data[p1[2]][1] = y2[i+1]
+        data[p1[2]][2] = z2[i+1]
+
+        data[p1[3]][0] = x1[i+1]
+        data[p1[3]][1] = y1[i+1]
+        data[p1[3]][2] = z1[i+1]
+
+
+
+
+
 
 
     return data
@@ -455,6 +484,24 @@ def faceindex(N):
           faces.append((int(4*i-4),int(4*i-3),int(4*i-2),int(4*i-1)))
     return faces
 
+def rotate(bx,by,bz):
+    global th
+    th = .5*np.pi
+    c, s = np.cos(th), np.sin(th)
+    R = np.array(((c, -s), (s, c)))  # rotation matrix
+
+    N = len(bx)-1
+
+    #=== rotating binormal such that bz[0]=1
+    for i in range(N+1):
+
+        temp = np.dot(R,np.array((bx[i],bz[i])))
+        bx[i]=temp[0]
+        bz[i]=temp[1]
+
+    return bx,by,bz
+
+
 
 '''
 =========================================================================
@@ -468,44 +515,93 @@ def faceindex(N):
 =========================================================================
 '''
 
-tau2 = np.around(np.arange(8.1,11.9,.1),decimals=1)#np.loadtxt('tau_3pi.txt')
-tau1 =  tau2#17.2,17.8)
+#=================
+global N,fac,wd,th,thickness
 
-#tau2 = np.arange(19.3,19.5,.1)
-#tau2 = np.arange(15.3,16,.1)
-#tau1 = int(np.around(tau2*(10**10),decimals=0))
-#tau2 = np.array([23.665,23.715])
-ln1 = np.size(tau2)
-m = 10**10
-path = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_3pi/'
-cols = (0,0.976, 0.968,1)  # rgb and facealpha for the mobius surface
+th = np.pi/2
+fac = 5
+wd  = fac/50#fac/80#fac/50
+thickness = wd/15
+th_surface = thickness/2
 
-frame = 0
-frame_num=0
-#sce = bpy.context.scene
-#bpy.ops.screen.frame_jump(end=False)
-context = bpy.context
-obj     = context.object
-scene   = context.scene
+N =   105
+N1 = N-1
+h = 1/N
+#cols = (0,0.976, 0.968,1)  # rgb and facealpha for the mobius surface
+cols = (0.059511,0.223228,0.708376,1)    # Eliot's suggested color
+'''
+=========================================================================
+ Name and path of the data file
+=========================================================================
+'''
 
-start   = scene.frame_start
-end     = scene.frame_end
+branch = 1
 
-for i in range(40):
+if branch==1:
+
+    nfold = 3
+    str1 =  '3fold_N'
+    path = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_3pi_3/'
+
+    strtau = path+'tau_branch_1.txt'
+    tau1 = np.loadtxt(strtau)
+    N = 72
+    N1=N-1
+    h = 1
 
 
-    tau = int(m*tau1[i])
+elif branch==2:
 
-    tau = int(np.around(tau2[i]*(10**10),decimals=0))
-    print(tau)
-    #str0 = '3fold_N72_tau_' + str(tau) + '.obj'
-    strb = path + 'b_3fold_N72_tau_' + str(tau) + '.txt'
+    nfold = 5
+    str1 = '5pi_knot_N'
+    path = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_5pi_3/'
 
-    #str0 = '7pi_knot_N84_tau_' + str(tau) + '.txt'
-    #str0 = '7pi_knot_84_tau_154000000000.0.txt'
-    #strb    = path + 'b_' + str0
+    strtau = path + 'tau_branch_2.txt'
+    tau1 = np.loadtxt(strtau)
+    N = 120
+    N1= N-1
+    h = 1/N
+else:
+
+    nfold = 7
+    str1 = '7pi_knot_N'
+    path = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_7pi_3/'
+
+    strtau = path + 'tau_branch_3.txt'
+    tau1 = np.loadtxt(strtau)
+
+#
+
+path = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' + str(branch) + '/'
+strtau =  path + 'tau_branch_' + str(branch)+ '.txt'
+tau1 = np.loadtxt(strtau)
+
+
+
+
+
+ln1 = np.size(tau1)
+#print(ln1)
+frame_num = 0
+for i in range(ln1):
+
+    frame_num= frame_num+1
+    tau  =  int(np.around(tau1[i]*(10**10),decimals=0))
+    #tau  =   np.around(tau1[i+10]*(10**10),decimals=1)
+
+    #strb =  path + 'b_' + str1 + str(N)+ '_tau_'+ str(tau)+ '.txt'
+
+    if i==0:
+        #N =   336
+#        strb = path + 'branch_3_N336_tau_153797061627_symmetry.txt'#'branch_2_N120_tau_119843000480_symmetry.txt'
+        N = 120
+        strb = path + 'branch_1_N120_tau_80940900000_symmetry.txt'
+    else:
+        N =   105
+        strb = path + 'branch_' + str(branch) + '_N' + str(N) + '_tau_' + str(tau)+ '.txt'
+
     verts = ReadDataFile(strb)
-    N = int(len(verts)/4)
+    #   print(type(points))
     faces =  faceindex(N)
      #------------------------------------------------
     # Get the active mesh
@@ -531,36 +627,6 @@ for i in range(40):
     mySurfaceObject.active_material = mat
     mySurfaceObject.material_slots[0].link = 'OBJECT'                               #link material to object not to mesh(data)
     mySurfaceObject.material_slots[0].material = mat
-
-
-
-    '''
-    # Merging vertices and smoothshading
-
-    bpy.context.view_layer.objects.active = mySurfaceObject
-    mySurfaceObject.select_set(True)
-    #select your object (the code sent earlier)
-    #change to edit mode
-    bpy.ops.object.mode_set(mode='EDIT')
-    #select all (vertices/faces/or edges) doesn't matter - just selects all
-    bpy.ops.mesh.select_all(action='SELECT')
-    #merges the verices in the selection
-    bpy.ops.mesh.remove_doubles()
-    #switch back to obejct mode
-    bpy.ops.object.mode_set(mode='OBJECT')
-    '''
-
-
-    #myObject here is the one I'm applying the modifier. It must be selected/active
-    '''
-    bpy.context.view_layer.objects.active = mySurfaceObject
-    mySurfaceObject.select_set(True)
-    bpy.ops.object.modifier_add(type='SUBSURF')                  #adds the modifier to the selected obejct
-    mySurfaceObject.modifiers["Subdivision"].render_levels = 2 #change factor in render
-    mySurfaceObject.modifiers["Subdivision"].levels = 2             #change factor in viewport only
-    '''
-   #==============================================================================================
-
 
 
 
@@ -592,6 +658,17 @@ for i in range(40):
     #=========== Shade smooth ======
     bpy.ops.object.editmode_toggle()
     bpy.ops.object.shade_smooth()
+
+    #bpy.context.view_layer.objects.active = mySurfaceObject
+    #mySurfaceObject.select_set(True)
+    bpy.ops.object.modifier_add(type='SOLIDIFY')                  #adds the modifier to the selected obejct
+    mySurfaceObject.modifiers["Solidify"].offset = 0
+    mySurfaceObject.modifiers["Solidify"].thickness = th_surface           #change factor in viewport only
+
+
+
+
+
     #==============================================================================================
 
     '''
@@ -606,7 +683,7 @@ for i in range(40):
     # Curve C10     - Trivial shape
 
     colr = (1,0,0,1)#(0.301,0.811,0.498,1)
-    thickness = 0.01
+    #thickness = 0.01
     points = ReadDataFile_r(strb)
     curve1 = CreateCurve(points, thickness, colr)            #create curve
 
@@ -636,33 +713,14 @@ for i in range(40):
     curve1.hide_render = True
     curve1.keyframe_insert(data_path="hide_render", frame=i+2)
 
-    '''
-    mySurfaceObject.keyframe_insert(data_path = "rotation_euler", index = -1)
-    frame_num = frame_num+1
 
+bpy.context.scene.frame_end = i+1
 
-    blend_file_path = bpy.data.path
-    directory = os.path.dirname(blend_file_path)
-    target_file = os.path.join(directory, 'myfile.obj')
-
-    bpy.ops.export_scene.obj(filepath=path)
-
-    bpy.context.scene.frame_set(bpy.context.scene.frame_current)
-
-    #  code for animation
-    bpy.context.view_layer.objects.active = mySurfaceObject
-    bpy.context.scene.frame_set(frame_num)
-    bpy.context.view_layer.update()
-    #obj.location.x=frame
-    #obj.keyframe_insert("location",frame=frame)
-    frame = frame+1
-    frame_num = frame_num+1
-    '''
 #objs = bpy.data.objects
 #objs.remove(objs["Cube"], do_unlink=True)
 
 #==== Camera location ===
-def update_camera(camera, focus_point=mathutils.Vector((0.0, 0.0, 1.0)), distance=3.0):
+def update_camera(camera, focus_point=mathutils.Vector((0.0, 0.0, 1.0)), distance=4):
     """
     Focus the camera to a focus point and place the camera at a specific distance from that
     focus point. The camera stays in a direct line with the focus point.
@@ -680,4 +738,4 @@ def update_camera(camera, focus_point=mathutils.Vector((0.0, 0.0, 1.0)), distanc
     camera.rotation_euler = rot_quat.to_euler()
     camera.location = rot_quat@mathutils.Vector((0.0, 0.0, distance))
 
-update_camera(bpy.data.objects['Camera'])
+#update_camera(bpy.data.objects['Camera'])

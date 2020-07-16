@@ -53,6 +53,12 @@ for i = 1:N+1
 end
 
 
+modb = sqrt(bx.^2+by.^2+bz.^2);
+
+bx = bx./modb;
+by = by./modb;
+bz = bz./modb;
+
 ig = 1:N;
 
 tx = by(ig,1).*bz(ig+1,1) - bz(ig,1).*by(ig+1,1);
@@ -71,7 +77,10 @@ ry(i+1,1) = ry(i,1) + ty(i,1);
 rz(i+1,1) = rz(i,1) + tz(i,1);
 end
 
-
+ bxg  = [bx(N-1,1) bx(N,1) bx' bx(2,1) bx(3,1)];
+ byg  = [by(N-1,1) by(N,1) by' by(2,1) by(3,1)];
+ bzg  = [bz(N-1,1) bz(N,1) bz' bz(2,1) bz(3,1)];
+% 
 
 
 %  
@@ -82,18 +91,18 @@ end
 % 
 % 
 %  
-% h = 1/N;
-% 
-% ig = 3:N+3;
-% 
-% 
-% 
-% 
-% rxp= (rxg(ig+1)-rxg(ig-1))/(2*h);
-% ryp= (ryg(ig+1)-ryg(ig-1))/(2*h);
-% rzp= (rzg(ig+1)-rzg(ig-1))/(2*h);
-% 
-% 
+h = 1/N;
+
+ig = 3:N+3;
+
+
+
+
+bxp= (bxg(ig+1)-bxg(ig))/(h);
+byp= (byg(ig+1)-byg(ig))/(h);
+bzp= (bzg(ig+1)-bzg(ig))/(h);
+
+
 % 
 % rx2p = (rxg(ig+1) + rxg(ig-1) -2*rxg(ig))/h^2;
 % ry2p = (ryg(ig+1) + ryg(ig-1) -2*ryg(ig))/h^2;

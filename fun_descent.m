@@ -52,7 +52,7 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac  d
   v             = x(5*N1+3,1)        ;
   w             = x(5*N1+4,1)        ;
   
-  c= -1;
+  c= 1;
   
   bext(1:3,1) = -[bx(N,1);by(N,1);bz(N,1)];
   bext(4:6,1) = -[bx(2,1);by(2,1);bz(2,1)];
@@ -507,7 +507,7 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac  d
                                     (bz(p-1)-bz(p+1))       0             -(bx(p-1)-bx(p+1))  ;
                                       -(by(p-1)-by(p+1))  (bx(p-1)-bx(p+1))           0        ] ;  
 
-    jac(:,5*N1+2:5*N1+4) = -jac(:,5*N1+2:5*N1+4);
+   jac(:,5*N1+2:5*N1+4) = -jac(:,5*N1+2:5*N1+4);
    
       %======================================================================
   

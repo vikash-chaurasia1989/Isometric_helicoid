@@ -1,4 +1,4 @@
-     function [F,J] = fun_jacobian6(x)
+function [F,J] = fun_jacobian6(x)
  
 %==== This is the version that gives same results as if discrete
 %formulation is used.. We use this function to generate all the results for
@@ -53,10 +53,9 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
   w             = x(5*N1+4,1)        ;
   
   
-  or = 1;   % for orientibility 
-  
-  bext(1:3,1) = or*[bx(N,1);by(N,1);bz(N,1)];
-  bext(4:6,1) = or*[bx(2,1);by(2,1);bz(2,1)];
+   
+  bext(1:3,1) = -1*[bx(N,1);by(N,1);bz(N,1)];
+  bext(4:6,1) = -1*[bx(2,1);by(2,1);bz(2,1)];
   
   om =  [ 0  -w   v  ;
          w   0  -u  ;
@@ -82,9 +81,9 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
     byp(N+1,1) = (by(N+1,1)-by(N,1))/(h);
     bzp(N+1,1) = (bz(N+1,1)-bz(N,1))/(h);
     
-  %     
+      
    %   lmp = (lm(ig+1,1)-lm(ig-1))/(2*h);
-     lmp = (lm(ig,1)-lm(ig-1,1))/(h);
+   lmp = (lm(ig,1)-lm(ig-1,1))/(h);
    
           
    %--  b''  (O(h^2))----
@@ -94,19 +93,15 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
    bz2p(1,1) = (bz(2,1) + bext(3,1) -2*bz(1,1))/h^2 ;
    
    bx2p(ig,1) = (bx(ig+1,1)  + bx(ig-1,1) - 2*bx(ig,1))/h^2 ;
-   by2p(ig,1) = (by(ig+1,1)  + by(ig-1,1)  - 2*by(ig,1))/h^2 ;
-   bz2p(ig,1) = (bz(ig+1,1)  + bz(ig-1,1)  - 2*bz(ig,1))/h^2 ;
+   by2p(ig,1) = (by(ig+1,1)  + by(ig-1,1) - 2*by(ig,1))/h^2 ;
+   bz2p(ig,1) = (bz(ig+1,1)  + bz(ig-1,1) - 2*bz(ig,1))/h^2 ;
    
    bx2p(N+1,1) = (bext(4,1) + bx(N,1)   - 2*bx(N+1,1))/h^2 ;
    by2p(N+1,1) = (bext(5,1) + by(N,1)   - 2*by(N+1,1))/h^2 ;
    bz2p(N+1,1) = (bext(6,1) + bz(N,1)   - 2*bz(N+1,1))/h^2 ;
 %    
      
-%    %=====================================================
-   
-
-
-
+%=====================================================
 
    bx4p(1,1) = (bx(4,1) - 4*bx(3,1) + 6*bx(2,1)-4*bx(1,1)+bext(1,1))/h^4;
    by4p(1,1) = (by(4,1) - 4*by(3,1) + 6*by(2,1)-4*by(1,1)+bext(2,1))/h^4;
@@ -118,9 +113,9 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
    by4p(ig-1,1) = (by(ig+2,1) - 4*by(ig+1,1) + 6*by(ig,1) - 4*by(ig-1,1) + by(ig-2,1))/(h^4);
    bz4p(ig-1,1) = (bz(ig+2,1) - 4*bz(ig+1,1) + 6*bz(ig,1) - 4*bz(ig-1,1) + bz(ig-2,1))/(h^4);
  
-   bx4p(N-1,1)   = (bext(4,1)  - 4*bx(N+1,1)  + 6*bx(N,1)  - 4*bx(N-1,1) + bx(N-2,1) )/h^4;
-   by4p(N-1,1)   = (bext(5,1)  - 4*by(N+1,1)  + 6*by(N,1)  - 4*by(N-1,1) + by(N-2,1) )/h^4;
-   bz4p(N-1,1)   = (bext(6,1)  - 4*bz(N+1,1)  + 6*bz(N,1)  - 4*bz(N-1,1) + bz(N-2,1) )/h^4;
+   bx4p(N-1,1)  = (bext(4,1)  - 4*bx(N+1,1)  + 6*bx(N,1)  - 4*bx(N-1,1) + bx(N-2,1) )/h^4 ;
+   by4p(N-1,1)  = (bext(5,1)  - 4*by(N+1,1)  + 6*by(N,1)  - 4*by(N-1,1) + by(N-2,1) )/h^4 ;
+   bz4p(N-1,1)  = (bext(6,1)  - 4*bz(N+1,1)  + 6*bz(N,1)  - 4*bz(N-1,1) + bz(N-2,1) )/h^4 ;
         
         
    %---------------------------------------

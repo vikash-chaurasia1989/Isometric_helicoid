@@ -1,4 +1,4 @@
-function f = pre_descent( )
+function f = pre_descent()
 
 global N fac tau
 
