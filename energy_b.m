@@ -10,7 +10,7 @@ n1 = tau/2/pi;
 N = length(bx)-1;
 h = 1/N;
 
-tau  = sum(sqrt((bx(1:end-1,1)-bx(2:end,1)).^2 + (by(1:end-1,1)-by(2:end,1)).^2+(bz(1:end-1,1)-bz(2:end,1)).^2));
+%tau  = sum(sqrt((bx(1:end-1,1)-bx(2:end,1)).^2 + (by(1:end-1,1)-by(2:end,1)).^2+(bz(1:end-1,1)-bz(2:end,1)).^2));
 
 
  
@@ -62,7 +62,9 @@ tau  = sum(sqrt((bx(1:end-1,1)-bx(2:end,1)).^2 + (by(1:end-1,1)-by(2:end,1)).^2+
   
   % aspect ratio  
   %sig = 0.01;
+ % E = (asinh(n*pi*sig))/(4*pi^3*n^3)*(h*sum(bpp(1:N))/2 - 8*pi^4*n^4) ;
   E = (asinh(n*pi*sig))/(4*pi^3*n^3)*(h*sum(bpp(1:N))/2 - 8*pi^4*n^4) ;
+
   
   % E  = fac/2*(h*(sum(bpp(1:N))) - 16*pi^4*n1^4) ;
     

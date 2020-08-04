@@ -6,18 +6,20 @@ global   N1  N     id   h   lm    p1 tau c ht N2 k
 global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bx0 by0 bz0 v0 branch x0
 format longE
 
+ 
+
 N1 = N-1;
 h = 1/N;
 
 path =  '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_descent7/'    ;
 
-%path = '/Users/rtodres/Documents/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_descent5/' ;
+%path = '/Users/rtodres/Documents/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_descent5/'   ;
 
-str0 = ['branch_' num2str(branch) '_N' num2str(N) '_tau_' num2str(round(10^10*tau)) '_step_' num2str(p1-1)   '.txt'];
+str0 = ['branch_' num2str(branch) '_N' num2str(N) '_tau_' num2str(round(10^10*tau)) '_step_' num2str(p1-1)   '.txt'] ;
 
 %== previous steps ==
 x0 =  load([path str0]);
-
+ 
 bx0(2:N,1)     = x0(1:3:3*N1-2,1)    ;
 by0(2:N,1)     = x0(2:3:3*N1-1,1)    ;
 bz0(2:N,1)     = x0(3:3:3*N1,1)      ;
@@ -63,7 +65,7 @@ Ac = Z'*jac(1:num_eq,1:num_eq)*Z     ;
 x(1:5*N1+4,1) = x0(1:5*N1+4,1)  - ht*V1(I(1));
 
 
-[fval,jac] = fun_jacobian6(x(1:5*N1+4,1));   % Hessian evaluated at previous step
+[fval,jac] = fun_jacobian6(x(1:5*N1+4,1));   % Hessian evaluated at the initial guess 
 
 [V1,D1] = eig(jac);
 

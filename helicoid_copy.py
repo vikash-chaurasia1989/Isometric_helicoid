@@ -38,7 +38,7 @@ def createplots(N,n):
    #==== first creating the edges and the midline
     # initialization of the coordinates
 
-    s = np.linspace(-.5,.5,N+1)
+    s = np.linspace(0,1,N+1)
 
 
     z  = s
@@ -47,10 +47,6 @@ def createplots(N,n):
 
     x2 = -a*np.cos(2*PI*n*s)
     y2 = -a*np.sin(2*PI*n*s)
-
-
-
-
 
     z  = fac*z
 
@@ -119,8 +115,7 @@ def createplots(N,n):
     #========================================================
 
 
-    #cols = (0,0.976, 0.968,1)  # rgb and facealpha for the mobius surface
-    cols = (0.059511,0.223228,0.708376,1)    # Eliot's suggested color
+    cols = (0,0.976, 0.968,1)  # rgb and facealpha for the mobius surface
 
 
 
@@ -495,8 +490,6 @@ def CreateCurve(points,thickness,colr,orderu):
   #light_object.select_set(True)
   #view_layer.objects.active = light_object
   #light_object.select_set(True)
-
-  '''
   light_data = bpy.data.lights.new(name="New Light", type='POINT')
 
   # Create new object with our light datablock.
@@ -512,7 +505,6 @@ def CreateCurve(points,thickness,colr,orderu):
 # And finally select it and make it active.
   light_object.select_set(True)
   view_layer.objects.active = light_object
-  '''
 
 
   mat = bpy.data.materials.new("matBase")
@@ -626,11 +618,11 @@ global N,fac,a,th,thickness,nr
 
 
 fac = 5
-a  = fac/17
+a  = fac/10
 thickness = a/20
-nr = 7 # number of rulings
+nr = 6 # number of rulings
 
-N =   200
+N =   105
 n = 8.093946633549898e+00/2/np.pi    # number of turns in the helicoid
 
 

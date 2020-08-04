@@ -1,10 +1,11 @@
- function [F,jac] = fun_descent5(x)
+  function [F,jac] = fun_descent5(x)
 
 
 global  N  N1  u v w    err   h    lm x0 gamma bt
 global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext   k  v0 ht  
 
- %  x = initial_descent5();
+  %  x = initial_descent5();
+  
 
  
 %----- reading input and constructing bx by bz ----
@@ -57,9 +58,9 @@ f_b(1:3*N1,1)        = bt*prefac_x*Ex(1:3*N1,:) + (x1(1:3*N1,1)-x0(1:3*N1,1))/ht
 f_b(3*N1+1:5*N1+4,1) = Ex(3*N1+1:5*N1+4,1)                                        ;
 
 
-jac(1:3*N1,1:3*N1)        = bt*prefac_x*Hx(1:3*N1,1:3*N1) + eye(3*N1)/ht     ;
-jac(1:3*N1,3*N1+1:5*N1+4) = bt*prefac_x*Hx(1:3*N1,3*N1+1:5*N1+4)             ;
-
+jac(1:3*N1,1:3*N1)        = bt*prefac_x*Hx(1:3*N1,1:3*N1) + eye(3*N1)/ht         ;
+jac(1:3*N1,3*N1+1:5*N1+4) = bt*prefac_x*Hx(1:3*N1,3*N1+1:5*N1+4)                 ;
+ 
 jac(3*N1+1:5*N1+4,1:5*N1+4)    = Hx(3*N1+1:5*N1+4,:);
 
 
@@ -85,18 +86,20 @@ i = 1;
 
 indi = (5*N1+4)*(i-1)+1:(5*N1+4)*i;
 
+ 
+
 [Expv,HxpV] = fun_jacobian6(x1+hv*V(:,i));   %   gradE(x+hv)
 [Exmv,HxmV] = fun_jacobian6(x1-hv*V(:,i));   %   gradE(x-hv)
 
-f_b(5*N1+4+indi,1) = gamma*(1-V(:,1)'*V(:,1))*(Expv-Exmv)/2/hv  + (V(:,1)-v0(:,1))/ht ;
+f_b(5*N1+4+indi,1) = gamma*(1-V(:,i)'*V(:,i))*(Expv-Exmv)/2/hv  + (V(:,1)-v0(:,1))/ht ;
 
 %== jacobian ===
 
-jac(5*N1+4+indi,1:5*N1+4) = gamma*(1-V(:,1)'*V(:,1))*(HxpV-HxmV)/2/hv; % -- with respect
+jac(5*N1+4+indi,1:5*N1+4) = gamma*(1-V(:,i)'*V(:,i))*(HxpV-HxmV)/2/hv; % -- with respect
 % -- lagrange multipliers
 
 jac(5*N1+4+indi,5*N1+4+indi) = - gamma*2*(Expv-Exmv)/2/hv*V(:,i)' ...
-    + gamma*(1-V(:,1)'*V(:,1))*(HxpV-HxmV)/2  + eye(5*N1+4)/ht;
+    + gamma*(1-V(:,i)'*V(:,i))*(HxpV-HxmV)/2  + eye(5*N1+4)/ht;
 
 
 for i = 2:k
@@ -105,22 +108,23 @@ for i = 2:k
     
     temp = 0;
     for j = 1:i-1
-        temp = temp + V(:,j)'*V(:,j)*(Expv-Exmv +Expv-Exmv')/2/hv;
+     %   temp = temp + V(:,j)'*V(:,j)*(Expv-Exmv +Expv-Exmv')/2/hv;
+        temp = temp + V(:,j)'*V(:,j);
     end
     
     
     [Expv,HxpV] = fun_jacobian6(x1+hv*V(:,i));   %   gradE(x+hv)
     [Exmv,HxmV] = fun_jacobian6(x1-hv*V(:,i));   %   gradE(x-hv)
     
-    f_b(5*N1+4+indi,1) = gamma*(1-V(:,1)'*V(:,1)-2*temp)*(Expv-Exmv)/2/hv  + (V(:,i)-v0(:,i))/ht ;
+    f_b(5*N1+4+indi,1) = gamma*(1-V(:,i)'*V(:,i)-2*temp)*(Expv-Exmv)/2/hv  + (V(:,i)-v0(:,i))/ht ;
     
     %== jacobian
     
-    jac(5*N1+4+indi,1:5*N1+4) = gamma*(1-V(:,1)'*V(:,1)-2*temp)*(HxpV-HxmV)/2/hv; % -- with respect
+    jac(5*N1+4+indi,1:5*N1+4) = gamma*(1-V(:,i)'*V(:,i)-2*temp)*(HxpV-HxmV)/2/hv; % -- with respect
     % -- lagrange multipliers
     
     jac(5*N1+4+indi,5*N1+4+indi) = -gamma*2*(Expv-Exmv)/2/hv*V(:,i)' ...
-        + gamma*(1-V(:,1)'*V(:,1)-2*temp)*(HxpV-HxmV)/2 + eye(5*N1+4)/ht; 
+        + gamma*(1-V(:,i)'*V(:,i)-2*temp)*(HxpV-HxmV)/2 + eye(5*N1+4)/ht; 
     
     for j = 1:i-1
         indj = (5*N1+4)*(j-1)+1:(5*N1+4)*j;
@@ -137,4 +141,4 @@ end
 F = f_b;
 
 err = sqrt(sum(f_b.^2)) ;
- end
+  end

@@ -164,7 +164,7 @@ path = ['/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/
   
 %str0 = ['branch_' num2str(branch) '_N' num2str(N) '_tau_' num2str(round(10^10*tau1(p1))) '.txt'];
 
-str0 =    'branch_1_N180_tau_80939466335.txt';
+str0 =     'branch_1_N180_tau_80939466335.txt';
 ;%'branch_1_N120_tau_80940990000.txt';% 'branch_1_N120_tau_80940900000.txt';% 'branch_1_N105_tau_80940900000.txt'; % 'branch_1_N240_tau_80940900000.txt';%
 
 x = load([path str0]);
@@ -202,7 +202,7 @@ w              = x(5*N1+4,1)        ;
 
 
 %==== interpolation of the saved data ==
-N2 = 216;        % new number of points 1
+N2 = 180;        % new number of points 1
 N1 = N2-1;
 
  s1 = (linspace(0,1,N+1))';
@@ -239,7 +239,7 @@ b(1:3:3*N1-2) = bx(2:N,1)  ;
 b(2:3:3*N1-1) = by(2:N,1)  ;
 b(3:3:3*N1)   = bz(2:N,1)  ;
 
- f =  [b(1:3*N1)  rho' lm'  u  v  w  ]'  ;         % for fun_jacobian6
+ f =  [b(1:3*N1)  rho' lm'  u  v   w  ]'  ;         % for fun_jacobian6
 
 
 

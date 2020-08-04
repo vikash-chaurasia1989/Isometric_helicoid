@@ -373,7 +373,7 @@ def find_nearest(array, value):
 global N,fac,wd,th,thickness
 
 th = np.pi/2
-fac = 9
+fac = 5
 wd  = fac/17
 
 nfold = 3
@@ -416,6 +416,7 @@ dn = np.zeros(N+1)
 
 for i in range(0,N+1):
     sn[i],cn[i], dn[i],temp = sp.ellipj(r*s[i],p)
+    #print(p**2*sn[i]**2 + dn**2)
 
 kappa = np.sqrt(al3*(1-q**2*sn**2))
 

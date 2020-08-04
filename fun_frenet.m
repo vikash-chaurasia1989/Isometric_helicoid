@@ -27,9 +27,9 @@ A = var_in(1);
 B = var_in(2);
  %tau1 = var_in(3);
 
-al1 = A +sqrt(A^2+B^2);
+al1 = 2*A + 2*sqrt(A^2+B);
 al2 = 0;
-al3 = -A +sqrt(A^2+B^2);
+al3 = -2*A +2*sqrt(A^2+B);
  
 p = sqrt((al3-al2)/(al3+al1));
 q = sqrt(1-al2/al3);
@@ -37,12 +37,20 @@ r = 1/2*sqrt(al3+al1);
 
 
 [K,E] = ellipke(p);
- s = linspace(0,2*nfold*K/r,N+1);
+%  s = linspace(0,2*nfold*K/r,N+1);
+% %s = linspace(0,1,N+1);
+% 
+%  tau = tau1*2*nfold*K/r;
+%  
+%   h = 1/N*2*nfold*K/r;
+  
+   s = linspace(0,nfold*K/r,N+1);
 %s = linspace(0,1,N+1);
 
- tau = tau1*2*nfold*K/r;
+ tau = tau1*nfold*K/r;
  
-  h = 1/N*2*nfold*K/r;
+  h = 1/N*nfold*K/r;
+  
 
 [sn,cn,dn] = ellipj(r*s,p);
 
@@ -51,10 +59,7 @@ kappa =  sqrt(al3*(1-q^2*sn.^2));
 
 
 %=== kappa = +- ==== .. Correcting sign of kappa in suitable intervals 
-
-%kappa(N/6+1:(N/6+N/3)) = - kappa(N/6+1:(N/6+N/3));
-%kappa(N-N/6+1:N+1) = -kappa(N-N/6+1:N+1);
-
+ 
 for m = 1:2:nfold-1 
     
     kappa((2*m-1)*N/(2*nfold)+1:((2*m-1)*N/(2*nfold) + N/(nfold))) = -kappa((2*m-1)*N/(2*nfold)+1:((2*m-1)*N/(2*nfold) + N/(nfold)));
@@ -63,6 +68,10 @@ end
     m = nfold;
     kappa((2*m-1)*N/(2*nfold)+1:N+1) = -kappa((2*m-1)*N/(2*nfold)+1:N+1);
  kappa = kappa';
+ 
+ 
+ 
+ 
  
 %kappa(236:702,1) = -kappa(236:702,1);
 % %--- evaluating at 2nd point using integration 

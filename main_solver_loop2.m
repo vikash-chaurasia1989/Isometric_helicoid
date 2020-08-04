@@ -250,10 +250,11 @@ end
 
 
 kappa2 = sqrt((bx2p.*bx2p + by2p.*by2p + bz2p.*bz2p -tau^4)/tau^2);
-kappa2 = [kappa2(1,1)' kappa2(2:end-1,1)']';
+kappa2 = [kappa2(end,1)' kappa2(2:end-1,1)']';
+%kappa2 = [kappa2(end-1,1) kappa2(1:end-1,1)']';
 kappa3 = kappa2-min(kappa2);
 kappa3(N/6+1) = 0;
-kappa3(N/3+1) = 0;
+kappa3(N/3+1) = kappa3(end);
 
 kappa3(N/6+1:2*N/6-1) = -kappa3(N/6-1:-1:1);
 kappa3(N/3) = -kappa3(end);
@@ -261,5 +262,20 @@ kappa3(N/3+1:N/3+N/6-1) = kappa3(N/3-1:-1:N/6+1);
 kappa3(N/2+1:5*N/6-1)  = -kappa3(N/2-1:-1:N/6+1);
 kappa3(5*N/6+1:end) =-kappa3(5*N/6-1:-1:2*N/3);
 
+kappa3 = [-kappa3(end,1) kappa3(1:end,1)']';
+
 s3 = linspace(0,1,length(kappa3));
-plot(s3,kappa3);
+plot(s3,kappa3/1.380983773188140e+01);
+
+
+
+%=== derivative of the curvature === 
+strkp = 'curvature_numerical';% ['branch_' num2str(branch) '_N' num2str(N) '_tau_' num2str(round(10^10*tau)) '.txt'];
+
+fileID = fopen([path strkp],'w');
+    fprintf(fileID,'%30.16E   \r\n',kappa3 );
+    fclose(fileID);
+
+
+
+% golden ratio = 1.618033988749895e+00

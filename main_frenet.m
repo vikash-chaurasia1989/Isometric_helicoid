@@ -13,12 +13,12 @@ branch =1;
 N = 120;
 N1 = N-1;
 h = 1/N;
-tau = 8.0940900000;
+tau =10.1% 8.0940900000;
 
-nfold = 3;
+nfold = 4;
 
 strpath = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch';
-% strpath = '/Users/rtodres/Documents/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch';
+ strpath = '/Users/rtodres/Documents/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch';
 path = [strpath num2str(branch) '/'];
 
 % strtau = ['tau_branch_' num2str(branch) '.txt'];
@@ -154,7 +154,9 @@ s = linspace(0,1 ,N+1);
 
 tau1 = tau;
 
-var_in = [ 8.075921715351875e+01, 2.591801747383097e+02];   % for 3pi solution
+var_in = [ 4.037960852507271e+01,  1.679359081062158e+04] ;   % for 3pi solution
+
+var_in = [ 4.037960852507271e+02,  1.679359081062158e+05] ;   % for 3pi solution
 
 %var_in = [2.768311267779191e+01,8.564919953409128e+02];
 
@@ -324,9 +326,9 @@ title(' ')
 
 %============ Perturbation about elliptic function ===========
 
-al1 = A +sqrt(A^2+B^2);
+al1 = 2*A + 2*sqrt(A^2+B);
 al2 = 0;
-al3 = -A +sqrt(A^2+B^2);
+al3 = -2*A +2*sqrt(A^2+B);
  
 p = sqrt((al3-al2)/(al3+al1));
 q = sqrt(1-al2/al3);
@@ -336,14 +338,24 @@ r = 1/2*sqrt(al3+al1);
 [K,E] = ellipke(p);
  s = linspace(0,2*nfold*K/r,N+1);
 %s = linspace(0,1,N+1);
-
- tau = tau1*2*nfold*K/r;
+  tau = tau1*2*nfold*K/r;
  
  h = 1/N*2*nfold*K/r;
 
-[sn,cn,dn] = ellipj(r*s,p);
-%kappa =  sqrt(al3*(1-q^2*sn.^2));
+[sn,cn,dn] = ellipj(r*s,p,eps);
+ %kappa =  sqrt(al3*(1-q^2*sn.^2));
 
+ dn = sqrt(1-p^2*sn.^2);
  
+%== satisfying the equilibrium equation =====
+kp = -al3*q^2*r*sn.*cn.*dn./kappa'   ;
+err = kp.^2 +kappa'.^4/4 + A*kappa'.^2 -B; 
+ 
+% 
+u = al3*(1-q^2*sn.^2);
+ up = -2*q^2*al3*r*sn.*cn.*dn;%4*q^4*al3^2*r^2*sn.^2.*cn.^2.*dn.^2;
 
+err = up.^2+ (u+al1).*(u-al2).*(u-al3);
 
+% 
+%1.380983773188140e+01

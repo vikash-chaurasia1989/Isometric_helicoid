@@ -614,7 +614,7 @@ global N,fac,wd,th,thickness
 
 th = np.pi/2
 fac = 9
-wd  = fac/40
+wd  = fac/230
 
 
 
@@ -657,7 +657,7 @@ tau1 = np.loadtxt(strtau)
 
 
 
-tau2 = 4*2*np.pi   # torsion value for which I want the equilibrium configuration
+tau2 = 3*2*np.pi   # torsion value for which I want the equilibrium configuration
 
 
 p1 = find_nearest(tau1,tau2)

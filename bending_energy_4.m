@@ -41,7 +41,9 @@ b_ar = [2,1,3];
 
 for num_ar = 1:3
     branch = b_ar(num_ar);
-    path = ['/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' num2str(branch) '/'];
+   % path = ['/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' num2str(branch) '/'];
+    path = ['/Users/rtodres/Documents/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' num2str(branch) '/'];
+ 
     strtau = ['tau_branch_' num2str(branch) '.txt'];
     strLk = ['Linking_branch_' num2str(branch) '.txt'];
     tau1 = load([path strtau]);
@@ -56,7 +58,9 @@ for p1  =  1:length(tau1)%262:length(tau1)%1:length(tau1)%3:length(tau1)%48:leng
     
     
     
-    path = ['/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' num2str(branch) '/'];
+   % path = ['/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' num2str(branch) '/'];
+    path = ['/Users/rtodres/Documents/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' num2str(branch) '/'];
+
     str0 = ['branch_' num2str(branch) '_N' num2str(N) '_tau_' num2str(round(10^10*tau)) '.txt'];
     
     temp = load([path str0]);

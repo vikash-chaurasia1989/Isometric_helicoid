@@ -39,9 +39,13 @@ t1 = [0.1 0.2 0.3];
 
 b_ar = [1,2,3];
 
-for num_ar = 1:3
+figure(1)
+
+for num_ar =1:3
     branch = b_ar(num_ar);
     path = ['/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' num2str(branch) '/'];
+    path = ['/Users/rtodres/Documents/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' num2str(branch) '/'];
+
     strtau = ['tau_branch_' num2str(branch) '.txt'];
     strLk = ['Linking_branch_' num2str(branch) '.txt'];
     tau1 = load([path strtau]);
@@ -57,6 +61,8 @@ for num_ar = 1:3
         
         
         path = ['/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' num2str(branch) '/'];
+        path = ['/Users/rtodres/Documents/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' num2str(branch) '/'];
+
         str0 = ['branch_' num2str(branch) '_N' num2str(N) '_tau_' num2str(round(10^10*tau)) '.txt'];
         
         temp = load([path str0]);
@@ -152,7 +158,7 @@ for num_ar = 1:3
         
         ind = 49:313;
         Lk1 = 15;
-        icol =  round((Lk1-1)/2);
+        icol =  round((Lk1-1)/2) 
         plot(tau1(ind)/(2*pi),E(branch,ind),':','LineWidth',3,'color',col{icol})
     
         
@@ -193,4 +199,30 @@ end
 %
 % fig1 = figure(1);
 % copyobj([leg,ax],fig1);
+
+
+%======================= Boltzmann distribution ===========================
 %
+
+E = E/55;
+
+P1 =   exp(-E(1,76:261))./(exp(-E(1,76:261)) +  exp(-E(2,38:223)) + exp(-E(3,3:188)));
+P2 =   exp(-E(2,38:223))./(exp(-E(1,76:261)) +  exp(-E(2,38:223)) + exp(-E(3,3:188)));
+P3 =   exp(-E(3,3:188))./(exp(-E(1,76:261)) +  exp(-E(2,38:223)) + exp(-E(3,3:188)));
+
+%==========================================================================
+figure(2)
+%
+plot(tau1(3:188),P1);
+hold on
+plot(tau1(3:188),P2);
+hold on
+plot(tau1(3:188),P3);
+
+set(gca,'FontSize',25,'LineWidth',.5)
+hold on
+title('Probability')
+
+box on
+grid on
+hold on

@@ -4,7 +4,7 @@ clc
 
 %===== steepest descent method ==
 
-global    lm  N1 p1 count tau  rho f_b  h tx ty tz  u v w tau1 p1 fac steps t1  N2 bt
+global    lm  N1 p1 count tau  rho f_b  h tx ty tz  u v w tau1 p1 fac steps t1  N2 bt k
 
 global bx by bz bxp byp bzp    N   len rx ry rz Lk err    branch sig   ht beta gamma x2
 
@@ -48,8 +48,8 @@ for p1  = 1:length(t1)%100%3:length(steps)%length(tau1)%length(tau1)%length(tau1
     %--------------------------- Solver ---------------------------------------
     
     %options.Algorithm   = 'levenberg-marquardt'  ;    %'trust-region-reflective' ;
-    options             = optimset('Display','iter', 'Algorithm','levenberg-marquardt','Jacobian','on', 'TOlFun',10^(-9),'TOlX',10^(-9),'MaxFunEvals',695  ) ;
-    options.MaxIter     = 500  ;
+    options             = optimset('Display','iter', 'Algorithm','levenberg-marquardt','Jacobian','on', 'TOlFun',10^(-9),'TOlX',10^(-9),'MaxFunEvals',300  ) ;
+    options.MaxIter     = 200  ;
     [x,fval,exitflag,output,qd1] =  fsolve(@fun_descent5      ,var_initial,options)          ;
     
     err1(p1) = err;
@@ -140,7 +140,7 @@ for p1  = 1:length(t1)%100%3:length(steps)%length(tau1)%length(tau1)%length(tau1
         
         path =  '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_descent7/'    ;
         
-     %   path = '/Users/rtodres/Documents/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_descent5/';
+     % path = '/Users/rtodres/Documents/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_descent5/';
         str0 = ['branch_' num2str(branch) '_N' num2str(N) '_tau_' num2str(round(10^10*tau)) '_step_' num2str(p1)   '.txt'];
        
         

@@ -518,8 +518,7 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac b0x b0y b0
   
     %=================  Deleting columns and rows with respect to entries for
   %bz(2) and bz(N)
-  J2 = jac;
-  
+   
 %   f_b(3,:)      = [];
 %   f_b(3*N1-1,:) = [];
 %   
