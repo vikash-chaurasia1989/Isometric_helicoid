@@ -15,10 +15,10 @@ N1 = N-1;
 h = 1/N;
 tau =10.1% 8.0940900000;
 
-nfold = 4;
+nfold = 3;
 
 strpath = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch';
- strpath = '/Users/rtodres/Documents/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch';
+% strpath = '/Users/rtodres/Documents/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch';
 path = [strpath num2str(branch) '/'];
 
 % strtau = ['tau_branch_' num2str(branch) '.txt'];
@@ -160,7 +160,8 @@ var_in = [ 4.037960852507271e+02,  1.679359081062158e+05] ;   % for 3pi solution
 
 %var_in = [2.768311267779191e+01,8.564919953409128e+02];
 
-N = 18*80;
+tau  = 15.1;
+N = 120*2;
 h = 1/N;
 %--------------------------- Solver ---------------------------------------
 %==========================================================================
@@ -193,7 +194,7 @@ nx(1,1) = by(1,1)*tz(1,1) - bz(1,1)*ty(1,1);
 ny(1,1) = bz(1,1)*tx(1,1) - bx(1,1)*tz(1,1);
 nz(1,1) = bx(1,1)*ty(1,1) - by(1,1)*tx(1,1);
 
-
+nfold = 10;
 algo = 1;
 
 stralgo = {'levenberg-marquardt' ,'trust-region-reflective' ,'trust-region-dogleg'};
@@ -201,7 +202,7 @@ stralgo = {'levenberg-marquardt' ,'trust-region-reflective' ,'trust-region-dogle
 options             = optimset('Display','iter', 'Algorithm',stralgo{algo},'Jacobian','off', 'TOlFun',10^(-32),'TOlX',10^(-32),'MaxFunEvals',695000  ) ;
 options.MaxIter     = 50000  ;
 %     [x,fval,exitflag,output,qd1] =  fsolve(@fun_curve2 ,var_initial,options)          ;
-[x,fval,exitflag,output,qd1] =  fsolve(@fun_frenet  ,var_in,options)          ;
+[x,fval,exitflag,output,qd1] =  fsolve(@fun_frenet5  ,var_in,options)          ;
 %[x,fval,exitflag,output,qd1] =  fsolve(@fun_p ,.1,options)          ;
 
 
@@ -324,38 +325,38 @@ title(' ')
 
 
 
-%============ Perturbation about elliptic function ===========
-
-al1 = 2*A + 2*sqrt(A^2+B);
-al2 = 0;
-al3 = -2*A +2*sqrt(A^2+B);
- 
-p = sqrt((al3-al2)/(al3+al1));
-q = sqrt(1-al2/al3);
-r = 1/2*sqrt(al3+al1);
-
-
-[K,E] = ellipke(p);
- s = linspace(0,2*nfold*K/r,N+1);
-%s = linspace(0,1,N+1);
-  tau = tau1*2*nfold*K/r;
- 
- h = 1/N*2*nfold*K/r;
-
-[sn,cn,dn] = ellipj(r*s,p,eps);
- %kappa =  sqrt(al3*(1-q^2*sn.^2));
-
- dn = sqrt(1-p^2*sn.^2);
- 
-%== satisfying the equilibrium equation =====
-kp = -al3*q^2*r*sn.*cn.*dn./kappa'   ;
-err = kp.^2 +kappa'.^4/4 + A*kappa'.^2 -B; 
- 
+% %============ Perturbation about elliptic function ===========
 % 
-u = al3*(1-q^2*sn.^2);
- up = -2*q^2*al3*r*sn.*cn.*dn;%4*q^4*al3^2*r^2*sn.^2.*cn.^2.*dn.^2;
-
-err = up.^2+ (u+al1).*(u-al2).*(u-al3);
-
+% al1 = 2*A + 2*sqrt(A^2+B);
+% al2 = 0;
+% al3 = -2*A +2*sqrt(A^2+B);
+%  
+% p = sqrt((al3-al2)/(al3+al1));
+% q = sqrt(1-al2/al3);
+% r = 1/2*sqrt(al3+al1);
 % 
-%1.380983773188140e+01
+% 
+% [K,E] = ellipke(p);
+%  s = linspace(0,2*nfold*K/r,N+1);
+% %s = linspace(0,1,N+1);
+%   tau = tau1*2*nfold*K/r;
+%  
+%  h = 1/N*2*nfold*K/r;
+% 
+% [sn,cn,dn] = ellipj(r*s,p,eps);
+%  %kappa =  sqrt(al3*(1-q^2*sn.^2));
+% 
+%  dn = sqrt(1-p^2*sn.^2);
+%  
+% %== satisfying the equilibrium equation =====
+% kp = -al3*q^2*r*sn.*cn.*dn./kappa'   ;
+% err = kp.^2 +kappa'.^4/4 + A*kappa'.^2 -B; 
+%  
+% % 
+% u = al3*(1-q^2*sn.^2);
+%  up = -2*q^2*al3*r*sn.*cn.*dn;%4*q^4*al3^2*r^2*sn.^2.*cn.^2.*dn.^2;
+% 
+% err = up.^2+ (u+al1).*(u-al2).*(u-al3);
+% 
+% % 
+% %1.380983773188140e+01

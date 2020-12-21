@@ -12,9 +12,11 @@ h = 1/N;
 
  
 str0 = ['branch_' num2str(branch) '_N' num2str(N) '_tau_' num2str(round(10^10*16)) '_step_' num2str(p1-1)   '.txt'] ;
-
+ 
 %== previous steps ==
+
 x0 =  load([path str0]);
+ 
  
 bx0(2:N,1)     = x0(1:3:3*N1-2,1)    ;
 by0(2:N,1)     = x0(2:3:3*N1-1,1)    ;
@@ -92,6 +94,8 @@ x(1:3*N1,1) = x0(1:3*N1,1)  + .1*V1(1:3*N1,I(1))/sqrt(sum(V1(1:3*N1,I(1))));
 %[fval,jac] = fun_jacobian6([x(1:3*N1,1)' lag']');   % Hessian evaluated at the initial guess 
 
 %[V1,D1] = eig(jac1);
+k=2;
+ 
 
 for i = 1:k 
     

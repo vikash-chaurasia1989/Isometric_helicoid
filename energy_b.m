@@ -1,12 +1,11 @@
 function E = energy_b(bx,by,bz)
 
 %== energy given binormal and torsion ==
-global sig fac tau
+global sig fac tau bpp kappa bxp byp bzp
 
 % bx = b(:,1);
 % by = b(:,2);
 % bz = b(:,3);
-n1 = tau/2/pi;
 N = length(bx)-1;
 h = 1/N;
 
@@ -63,9 +62,12 @@ h = 1/N;
   % aspect ratio  
   %sig = 0.01;
  % E = (asinh(n*pi*sig))/(4*pi^3*n^3)*(h*sum(bpp(1:N))/2 - 8*pi^4*n^4) ;
+ 
+ kappa = bpp/tau^2 - tau^2;
+ 
   E = (asinh(n*pi*sig))/(4*pi^3*n^3)*(h*sum(bpp(1:N))/2 - 8*pi^4*n^4) ;
 
-  
+   
   % E  = fac/2*(h*(sum(bpp(1:N))) - 16*pi^4*n1^4) ;
     
   %== curvature ====
@@ -78,4 +80,4 @@ h = 1/N;
 
 
 
-end
+end 

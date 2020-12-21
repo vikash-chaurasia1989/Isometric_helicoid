@@ -6,8 +6,7 @@
   global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p nfold sig branch
   format longE
   %--------Array initialization -------
-  path = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_7pi_2/';
- % path = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_discrete/data_7pi/';
+  % path = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_discrete/data_7pi/';
  % path = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Constant torsion/Full_discrete_formulation/data_5pi/';
 
    %  

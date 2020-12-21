@@ -628,10 +628,10 @@ global N,fac,a,th,thickness,nr
 fac = 5
 a  = fac/17
 thickness = a/20
-nr = 7 # number of rulings
+nr = 13 # number of rulings
 
 N =   200
-n = 8.093946633549898e+00/2/np.pi    # number of turns in the helicoid
+n = -8.093946633549898e+00/2/np.pi    # number of turns in the helicoid
 
 
 createplots(N,n)

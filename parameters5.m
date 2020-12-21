@@ -7,7 +7,7 @@ global N N1 h tau sig fac branch ht bt gamma t1 nstep strpath path bx1 by1 bz1 b
  %strpath  = '/Users/rtodres/Documents/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch';
 
  
- path =  '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_descent6/'    ;
+ path =  '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_descent8/'    ;
 
  % path = '/Users/rtodres/Documents/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_descent6/';
 
@@ -25,9 +25,12 @@ fac = (asinh(n*pi*sig))/(4*pi^3*n^3);
 branch =2;
 %==========================================================================
 ht = 0.001;
+ht = 0.0075;
 
-bt    =  -5*10^-5;
-gamma =  -1*10^-5;
+bt    =    -5*10^-5;
+gamma =    -1*10^-5;
+
+ 
 
 t1 = 0:ht:1;
 
@@ -39,6 +42,11 @@ path1 = [strpath num2str(branch) '/'];
 
 str0 = ['branch_' num2str(branch) '_N' num2str(N) '_tau_' num2str(round(10^10*tau)) '.txt'];
 
+  path1 =  '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_unknot_5pi/' ;
+  str0 = ['branch_unknot_5pi_N' num2str(N) '_tau_' num2str(round(10^10*tau)) '.txt'];
+  str0 =  'branch_1_N120_tau_160000000000_unstable.txt';
+          
+          
 x = load([path1 str0]);
 
 bx1(2:N,1)     = x(1:3:3*N1-2,1)    ;
@@ -58,7 +66,9 @@ path1 = [strpath num2str(branch) '/'];
 
 str0 = ['branch_' num2str(branch) '_N' num2str(N) '_tau_' num2str(round(10^10*tau)) '.txt'];
 
-x = load([path1 str0]);
+ 
+%str0 = 'branch_2_N105_tau_160000000000_step_50.txt';
+x = load([path1  str0]);
 
 bx2(2:N,1)     = x(1:3:3*N1-2,1)    ;
 by2(2:N,1)     = x(2:3:3*N1-1,1)    ;

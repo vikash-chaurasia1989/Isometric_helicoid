@@ -24,6 +24,8 @@ parameters5()
 fid = figure;
 
 str = 'animation_descent_213c';% ['animation_' num2str(213)];
+str = 'animation_descent_1-unstable';% ['animation_' num2str(213)];
+
 
 % Set up the movie.
 writerObj = VideoWriter([path str]); % Name it.
@@ -52,7 +54,7 @@ nfold = 5;
  num1 = 3255;
  num3 = 2244;
          
-for p1= 1:5499%(num1+num3) %1:253%length(t1)
+for p1= 1:397%(num1+num3) %1:253%length(t1)
     
     %==== saving data =====
     
@@ -60,11 +62,11 @@ for p1= 1:5499%(num1+num3) %1:253%length(t1)
      
     str0 = ['branch_' num2str(branch) '_N' num2str(N) '_tau_' num2str(round(10^10*16)) '_step_' num2str(p1-1)   '.txt'];
 
-    if(p1>num1)
-        branch =3;
-        str0 = ['branch_' num2str(branch) '_N' num2str(N) '_tau_' num2str(round(10^10*16)) '_step_' num2str(num1+num3-p1)   '.txt'];
-    end
-    
+%     if(p1>num1)
+%         branch =3;
+%         str0 = ['branch_' num2str(branch) '_N' num2str(N) '_tau_' num2str(round(10^10*16)) '_step_' num2str(num1+num3-p1)   '.txt'];
+%     end
+%     
 
     x = load([path str0]);
 
@@ -269,7 +271,7 @@ for p1= 1:5499%(num1+num3) %1:253%length(t1)
 %         plot(t(p1),Et(p1),'--or', 'LineWidth',.5)
 %         
 %     end
-    xlim([1 5499])
+    xlim([1 500])
     ylim([.5 22])
     
     set(gca,'FontSize',25,'LineWidth',.5)

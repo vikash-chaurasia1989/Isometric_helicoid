@@ -1,10 +1,7 @@
 %---
 clear all
 clc
-addpath('/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_3pi')
-addpath('/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_5pi')
-addpath('/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_7pi')
-
+ 
 
 global    lm  N1 p1 count tau  rho f_b  h tx ty tz  u v w tau1 p1
 
@@ -30,18 +27,50 @@ col7 = [0.831, 0.545, 0.247]/2  ;      % -- color for mode n = 3
 
 
 col = {col1,col2,col3,col4,col5,col6,col7} ;
+colw = [41,44,52]/255;
 
 %temp = load('05_fold.txt');
+% == 253:309
 
-
-for branch =3:3
+for branch =15:15
     path = ['/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' num2str(branch) '/'];
+    
+   % path = [ '/Users/rtodres/Documents/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' num2str(branch) '/'];
+
+         
+    
     strtau = ['tau_branch_' num2str(branch) '.txt'];
     
     tau1 = load([path strtau]);
     
     %==========================================================================
-    N = 105;
+    if (branch==1||branch==2||branch==3)
+        N=105;
+    end
+    
+    if(branch==4||branch==9)
+        N = 180;% 120;
+    end
+    if(branch==5)
+        N = 140;
+    end
+    
+    if(branch== 6)
+        N = 90;
+    end
+    
+    if(branch== 8)
+        N = 150;
+    end
+    
+    if(branch==11||branch==14||branch==15)
+        N=170;
+    end
+    
+    if(branch==13)
+        N=210;
+    end
+        
     N1 = N-1;
     h = 1/N;
     
@@ -70,12 +99,12 @@ for branch =3:3
     %st = load([path strst]);
     
     p2 = 64;
-    for p1 =  1:length(tau1)
+    for p1 =    1:length(tau1)
         
-        sv = 1;
+        sv = 0;
         tau =  tau1(p1);
         
-        path = ['/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' num2str(branch) '/'];
+     %   path = ['/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' num2str(branch) '/'];
         str0 = ['branch_' num2str(branch) '_N' num2str(N) '_tau_' num2str(round(10^10*tau)) '.txt'];
         
         temp = load([path str0]);
@@ -150,7 +179,7 @@ for branch =3:3
         
         
         
-        w = 0.002;
+        w = 0.0002;
         
         
         nx = by.*tz - bz.*ty;
@@ -167,7 +196,10 @@ for branch =3:3
         ry0 = ry + w*by;
         rz0 = rz + w*bz;
         
-        
+%         rx1 = rx - w*bx;
+%         ry1 = ry - w*by;
+%         rz1 = rz - w*bz;
+%         
         
         tx0 = tx -w*tau*nx;
         ty0 = ty -w*tau*ny;
@@ -224,11 +256,14 @@ for branch =3:3
         Lk(p1) = round(n);
         
         if(branch==1)
-            if(p1==15)
+            if(p1==14)
                 Lk(p1)=3;
                 %
             end
-            %
+%             if(p1>729)
+%                 Lk(p1)=23;
+%             end
+%             %
         end
 
          
@@ -246,14 +281,53 @@ for branch =3:3
                 
             end
         end
+         if(branch==4)
+            if(p1>619)
+                Lk(p1)=27;
+                
+            end
+         end
+        
 %             
 %             if(Lk(p1)>15)
 %                 Lk(p1)=15;
 %             end
 %         end
 %         
-         
+      
+if(branch==5)
+    if(p1>249&&p1<360)
+        Lk(p1) = 17;
+    end
+end
+
+% if(branch==6)
+%     if(p1>60&&p1<275)
+%         Lk(p1)=13;
+%     end
+%     if(p1>274&&p1<304)
+%         Lk(p1)=17;
+%     end
+%     if(p1>52&&p1<61)
+%         Lk(p1)=11;
+%     end
+% if(p1>304&&p1<398)
+%     Lk(p1)=21;
+% end
+    
+    if(branch==9)
+        if(p1<41)
+            Lk(p1) = 9;
+        end
+        if(Lk(p1)>21)
+            Lk(p1)=29;
+        end
         
+    end
+%     end
+   
+% end
+%         
         
 %         figure(1)
 %         plotbrowser on
@@ -269,8 +343,9 @@ for branch =3:3
 %         
     end
     
-    plot(tau1/(2*pi),Lk,'-ok','LineWidth',.5)
-    
+    plot(Lk,'-ok','LineWidth',.5)
+      %  plot(tau1/(2*pi),Lk,'-ok','LineWidth',.5)
+
     title('Linking number')
     
     box on
@@ -278,11 +353,38 @@ for branch =3:3
     hold on
     set(gca,'FontSize',25,'LineWidth',.5)
     
-    strLk = ['Linking_branch_' num2str(branch) '.txt'];
-    
+     strLk = ['Linking_branch_' num2str(branch) '.txt'];
+%   
     if(sv==1)
         fileID = fopen([path strLk],'w');
         fprintf(fileID,'%30.16E   \r\n',Lk' );
         fclose(fileID);
     end
+    
+ % %     %=== drawing arrows for direction of the curves and the link number
+%     figure(3)
+%     plotbrowser on
+%     title('midline')
+%     hold on
+%     plot3(rx,ry,rz,'color',col{1},'LineWidth',2)
+%     hold on
+%     set(gca, 'DataAspectRatio',[1,1,1]);
+%     daspect([1,1,1]);
+%     axis off
+%     set(gcf,'color',colw);
+%     axis vis3d
+%     
+%     nfold = 9 ;
+%    
+%     for m1 = 1:4
+%         
+%         ind = 2*m1*N/nfold;
+%         diff = 1;
+%         ar1 = [rx(ind-diff,1)     , ry(ind-diff,1)     , rz(ind-diff,1)];
+%         ar2 = [rx(ind+diff,1)     , ry(ind+diff,1)     , rz(ind+diff,1)];
+%      mArrow3(ar1,ar2,'stemWidth',0.001,'tipWidth',0.002);
+%     end
+    
+    
+    
 end

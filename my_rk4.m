@@ -1,10 +1,11 @@
 function x1 = my_rk4(x0)
 
-global ht bx0 by0 bz0 N N1 bx by bz d p1 branch path bxm1 bym1 bzm1 tau bx1 by1 bz1 bx2 by2 bz2  d21 dsum
+global ht bx0 by0 bz0 N N1 bx by bz d p1 branch path bxm1 bym1 bzm1 tau bx1 by1 bz1 bx2 by2 bz2  d21 dsum k
 smop = {'moving','lowess','lowess','sgolay','rlowess','rloess'};
 opid  = 3;
+ 
 
-
+ 
 k1 = fun_descent7(0,x0);
 
 k2 = fun_descent7(0,x0+ht*k1/2);
@@ -72,25 +73,7 @@ bxm1(N+1,1) = -1;
 bym1(N+1,1) =  0;
 bzm1(N+1,1) =  0;
 
-
-str0 = ['branch_' num2str(branch) '_N' num2str(N) '_tau_' num2str(round(10^10*16)) '_step_' num2str(p1-1)   '.txt'] ;
-
-%== previous steps ==
-x0 =  load([path str0]);
-
-bx3(2:N,1)     = x0(1:3:3*N1-2,1)    ;
-by3(2:N,1)     = x0(2:3:3*N1-1,1)    ;
-bz3(2:N,1)     = x0(3:3:3*N1,1)      ;
-
-bx3(1,1)   =  1;
-by3(1,1)   =  0;
-bz3(1,1)   =  0;
-
-bx3(N+1,1) = -1;
-by3(N+1,1) =  0;
-bz3(N+1,1) =  0;
-
-
+ 
 
 
 d =  1*sqrt(sum((bxm1-bx0).^2 + (bym1-by0).^2 + (bzm1-bz0).^2)) ;

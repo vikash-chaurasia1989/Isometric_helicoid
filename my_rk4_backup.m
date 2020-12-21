@@ -64,18 +64,21 @@ bxm1(2:N,1)     = x0(1:3:3*N1-2,1)    ;
 bym1(2:N,1)     = x0(2:3:3*N1-1,1)    ;
 bzm1(2:N,1)     = x0(3:3:3*N1,1)      ;
 
-bxm1(1,1) = 1;
-bym1(1,1) = 0;
-bzm1(1,1) = 0;
+bxm1(1,1)   =  1;
+bym1(1,1)   =  0;
+bzm1(1,1)   =  0;
 
 bxm1(N+1,1) = -1;
 bym1(N+1,1) =  0;
 bzm1(N+1,1) =  0;
 
+ 
+
+
 d =  1*sqrt(sum((bxm1-bx0).^2 + (bym1-by0).^2 + (bzm1-bz0).^2)) ;
 
-%dsum = dsum + d;   % 
-dsum = sqrt(sum((bx2-bx0).^2 + (by2-by0).^2 + (bz2-bz0).^2)) ; % distance between the solution from steepest descent and equilibrium solution
+dsum = dsum + d;   % 
+%dsum = sqrt(sum((bx2-bx0).^2 + (by2-by0).^2 + (bz2-bz0).^2)) ; % distance between the solution from steepest descent and equilibrium solution
 %==========================================================================
 %
 
@@ -164,7 +167,7 @@ var_in2 = var_in(1:3*N1,1);
 [x,fval,exitflag,output,qd1] =  fsolve(@fun_pullback4  , var_in2 ,options)    ;
 
  
- %=== P
+ %=== fun_pullback4 has work the best so far. 
  
 
 %

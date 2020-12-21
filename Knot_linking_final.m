@@ -26,51 +26,24 @@ tau1 = [8.1:.1:9.5 10:1:19];
 
 tau1 = 8.1;
 N = 72;
-%==================
-
-%===== tau for 5 fold ====
-% % 
-   %  tau1 = [12:.1:12.4 12.45 12.465 12.5:.1:13.9 14:.5:25];
-    tau1 = [12:.1:12.4 12.45 12.465 12.5:.1:19  19.5:.5:25];
-    % tau1 = [12:.1:12.4 12.45 12.465 12.5:.1:16];
-
- % % 
-    tau1 = [11.97871 11.98071 11.98571 11.99071 11.99571  tau1];
-    
-     
-% % 
-
-%===== tau1 and num_t 
-%  tau1 = 14.6:.1:16 
-%  num_t = 5;
-%- tau1 = 16.1:.1:17.4
-%  num_t = 7;
-% tau1>17.4;
-%  num_t = 11;
-
- %   tau1 =  12.1;%11.97871 ;
-% % %  
-%tau1 = 14.5:.1:19;
- 
-  N = 120      ;
-%==================
-
-   h = 1/N      ;
-
-% N = length(temp)-1;
-% 
-%  N = N/2;
+%=============== 
 % h = 1/N;
- 
+branch = 4;%
+     path = ['/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' num2str(branch) '/'];
+    
+   % path = [ '/Users/rtodres/Documents/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' num2str(branch) '/'];
 
-for p1 = 1:length(tau1)
+         
     
+    strtau = ['tau_branch_' num2str(branch) '.txt'];
     
+    tau1 = load([path strtau]);
     
+
+for p1 = 618:618%1:length(tau1)
     
-       
-             N = 120      ; 
-       
+       N = 120      ; 
+       N1 = N-1;
        h = 1/N      ;   
 %==========================================================================
 %==========================================================================
@@ -101,41 +74,70 @@ for p1 = 1:length(tau1)
     
     tau = tau1(p1);
     
-    
-    
-    %-- 3 fold --
-    
-%      str0 = ['3fold_N' num2str(N) '_tau_' num2str(10*tau) '.txt'];
-
-       
-    %-- 5 fold ----    
-      str0 = ['5pi_knot_N120_tau_' num2str(10*tau) '_1.txt'];
-%  
-      if(tau>13.9)
-              str0 = ['5pi_knot_N120_tau_' num2str(10*tau) '.txt'];
-     end
 %     
-   % str0  = '3fold_N72_tau_170.txt';
-    
-    %-- 5pi --
-    %  str0 = ['5pi_knot_N120_tau_' num2str(10*tau1(p1)) '.txt'];
-    
-    
-    strb = ['b_' str0];
-    strr = ['r_' str0];
-    
-    strlm = ['lm_' str0];
-    strrho = ['rho_' str0];
-    struvw = ['uvw_' str0];
-    strbext = ['bext_' str0];
-    
+%     
+%     %-- 3 fold --
+%     
+% %      str0 = ['3fold_N' num2str(N) '_tau_' num2str(10*tau) '.txt'];
+% 
+%        
+%     %-- 5 fold ----    
+%       str0 = ['5pi_knot_N120_tau_' num2str(10*tau) '_1.txt'];
+% %  
+%       if(tau>13.9)
+%               str0 = ['5pi_knot_N120_tau_' num2str(10*tau) '.txt'];
+%      end
+% %     
+%    % str0  = '3fold_N72_tau_170.txt';
+%     
+%     %-- 5pi --
+%     %  str0 = ['5pi_knot_N120_tau_' num2str(10*tau1(p1)) '.txt'];
+%     
+%     
+%     strb = ['b_' str0];
+%     strr = ['r_' str0];
+%     
+%     strlm = ['lm_' str0];
+%     strrho = ['rho_' str0];
+%     struvw = ['uvw_' str0];
+%     strbext = ['bext_' str0];
+%     
+%     
+%   
+%     %==========================================================================
+%     N = 105;%140;
+%     N1 = N-1;
+%     h = 1/N;
+%     
     
     %--- load b
-    temp = load(strb);
-
- bx  = temp(1:N+1,1);
- by = temp(1:N+1,2);
- bz = temp(1:N+1,3);
+ %   temp = load(strb);
+ 
+ 
+   str0 = ['branch_' num2str(branch) '_N' num2str(N) '_tau_' num2str(round(10^10*tau)) '.txt'];
+        
+        temp = load([path str0]);
+        
+        x = temp(1:3*N1,1);
+        
+        bx(2:N,1)     = x(1:3:3*N1-2,1)    ;
+        by(2:N,1)     = x(2:3:3*N1-1,1)    ;
+        bz(2:N,1)     = x(3:3:3*N1,1)      ;
+        %--- boundary points --
+        
+        bx(1,1) = 1;
+        by(1,1) = 0;
+        bz(1,1) = 0;
+        
+        bx(N+1,1) = -1;
+        by(N+1,1) =  0;
+        bz(N+1,1) =  0;
+ 
+ 
+% 
+%  bx  = temp(1:N+1,1);
+%  by = temp(1:N+1,2);
+%  bz = temp(1:N+1,3);
  
     %-- load r --
     
@@ -175,39 +177,94 @@ for p1 = 1:length(tau1)
 %  end
 %  
  
- dl = sqrt((bx(1:end-1,1)-bx(2:end,1)).^2 + (by(1:end-1,1)-by(2:end,1)).^2 +(bz(1:end-1,1)-bz(2:end,1)).^2);
+%  dl = sqrt((bx(1:end-1,1)-bx(2:end,1)).^2 + (by(1:end-1,1)-by(2:end,1)).^2 +(bz(1:end-1,1)-bz(2:end,1)).^2);
+% 
+% tau = sum(dl);
+%  
+%  
+% i = 1:N;
+% 
+% tx = by(i,1).*bz(i+1,1) - bz(i,1).*by(i+1,1);
+% ty = bz(i,1).*bx(i+1,1) - bx(i,1).*bz(i+1,1);
+% tz = bx(i,1).*by(i+1,1) - by(i,1).*bx(i+1,1);
+% 
+% 
+% 
+% tx(N+1,1) = tx(1,1);
+% ty(N+1,1) = ty(1,1);
+% tz(N+1,1) = tz(1,1);
+% 
+% tx = tx/tau/h;
+% ty = ty/tau/h;
+% tz = tz/tau/h;
+% 
+%  
+% rx(1,1) = 0;
+% ry(1,1) = 0;
+% rz(1,1) = 0;
+% 
+% for i=1:N 
+% 
+%     rx(i+1,1) = rx(i,1) + h*tx(i,1);
+%     ry(i+1,1) = ry(i,1) + h*ty(i,1);
+%     rz(i+1,1) = rz(i,1) + h*tz(i,1);
+% end
 
-tau = sum(dl);
- 
- 
-i = 1:N;
 
-tx = by(i,1).*bz(i+1,1) - bz(i,1).*by(i+1,1);
-ty = bz(i,1).*bx(i+1,1) - bx(i,1).*bz(i+1,1);
-tz = bx(i,1).*by(i+1,1) - by(i,1).*bx(i+1,1);
-
-
-
-tx(N+1,1) = tx(1,1);
-ty(N+1,1) = ty(1,1);
-tz(N+1,1) = tz(1,1);
-
-tx = tx/tau/h;
-ty = ty/tau/h;
-tz = tz/tau/h;
-
- 
-rx(1,1) = 0;
-ry(1,1) = 0;
-rz(1,1) = 0;
-
-for i=1:N 
-
-    rx(i+1,1) = rx(i,1) + h*tx(i,1);
-    ry(i+1,1) = ry(i,1) + h*ty(i,1);
-    rz(i+1,1) = rz(i,1) + h*tz(i,1);
-end
-
+    
+        bext(1:3,1) = -[bx(N,1);by(N,1);bz(N,1)];
+        bext(4:6,1) = -[bx(2,1);by(2,1);bz(2,1)];
+        
+        %---- derivative calculation for b2 --- bN  ---
+        
+        ig = 2:N;
+        
+        
+        
+        
+        %=== O(h)====
+        bxp(1,1) = (bx(1,1)-bext(1,1))/(h);
+        byp(1,1) = (by(1,1)-bext(2,1))/(h);
+        bzp(1,1) = (bz(1,1)-bext(3,1))/(h);
+        
+        bxp(ig,1) = (bx(ig,1)-bx(ig-1,1))/(h);
+        byp(ig,1) = (by(ig,1)-by(ig-1,1))/(h);
+        bzp(ig,1) = (bz(ig,1)-bz(ig-1,1))/(h);
+        
+        
+        bxp(N+1,1) = (bx(N+1,1)-bx(N,1))/(h);
+        byp(N+1,1) = (by(N+1,1)-by(N,1))/(h);
+        bzp(N+1,1) = (bz(N+1,1)-bz(N,1))/(h);
+        
+        i = 1:N+1   ;
+        
+        %
+        tx(i,1) = by(i,1).*bzp(i,1) - bz(i).*byp(i,1);
+        ty(i,1) = bz(i,1).*bxp(i,1) - bx(i).*bzp(i,1);
+        tz(i,1) = bx(i,1).*byp(i,1) - by(i).*bxp(i,1);
+        tx = tx/tau;
+        ty = ty/tau;
+        tz = tz/tau;
+        
+        %--------------------
+        
+        % %--- position vector using integration of tangent
+        % % initialization
+        %h=1;
+        rx(1,1) = 0; ry(1,1) = 0; rz(1,1) = 0;
+        
+        
+        
+        for i = 1:N
+            
+            rx(i+1,1) = rx(i,1) + h*tx(i+1,1);
+            ry(i+1,1) = ry(i,1) + h*ty(i+1,1);
+            rz(i+1,1) = rz(i,1) + h*tz(i+1,1);
+            
+        end
+        
+        
+        
  nfold = 5;
  ind = [1 1 + (N/nfold:N/nfold:((nfold-1)*N/nfold))];
 
@@ -224,7 +281,7 @@ end
 
   
 
- w = 0.02;
+ w = 0.002;
 
 
 nx = by.*tz - bz.*ty;
@@ -544,21 +601,21 @@ for i = 1:length(temp)
 end
 %================================
         
- Lk_knot(p1) = sum(link)*2;
+ Lk_knot(p1) = abs(sum(link)*2);
 num_t(p1) = round(Lk(p1)-Lk_knot(p1));
  
-
-if(tau>=12 && tau<12.8)
-    num_t(p1) =5;
- 
-elseif(tau > 14.5 && tau<16)
-    num_t(p1) = 5;
-elseif(tau > 16 && tau<17.5)
-    num_t(p1) = 7;
-elseif(tau>17.4)
-    num_t(p1) = 11;
-end
- 
+% 
+% if(tau>=12 && tau<12.8)
+%     num_t(p1) =5;
+%  
+% elseif(tau > 14.5 && tau<16)
+%     num_t(p1) = 5;
+% elseif(tau > 16 && tau<17.5)
+%     num_t(p1) = 7;
+% elseif(tau>17.4)
+%     num_t(p1) = 11;
+% end
+%  
 
 %  if(tau>16.1)
 %      Lk_knot(p1) = 0;
@@ -667,14 +724,32 @@ end
 % 
 
 %--- Figure 
-num_t = round(num_t);
-ind = find(num_t==-1);
-num_t(ind) = 3;
-figure(20)
-plotbrowser on 
-plot(tau1/(2*pi),round(num_t),'--o')
-set(gca,'FontSize',25)
- set(gcf,'color','w');
-box on
-grid on
-hold on 
+% num_t = round(num_t);
+% ind = find(num_t==-1);
+% num_t(ind) = 3;
+% figure(20)
+% plotbrowser on 
+% plot(tau1/(2*pi),round(num_t),'--o')
+% set(gca,'FontSize',25)
+%  set(gcf,'color','w');
+% box on
+% grid on
+% hold on 
+
+plot(num_t,'--o')
+
+
+%=== saving midline in xyz format ====
+
+str0 = 'midline_knot.xyz';
+%
+fileID = fopen([path str0],'w');
+
+
+
+for i = 1:N+1
+    fprintf(fileID,'%d %30.16E %30.16E %30.16E \r\n'  ,[i rx(i,1) ry(i,1) rz(i,1)] );
+end
+fclose(fileID);
+
+

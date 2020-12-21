@@ -41,9 +41,10 @@ t_start=0;
 tspan = t_start:ht:t_end;
 
 dsum = 0;
-for p1  = 1:2500%1:nstep%300:500%1:length(tspan)%100%3: 
+for p1  =1:500%:500%1:500%1:2000%1600%:1700%1:nstep%300:500%1:length(tspan)%100%3: 
     sv = 1;
     
+    p1
       
     var_initial = initial_descent6();
     

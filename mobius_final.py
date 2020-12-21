@@ -26,112 +26,6 @@ import bmesh
 '''
 ================== Functions for creating the midline ===================
 '''
-'''
-=========================================================================
-ReadDatafile for midline
-=========================================================================
-'''
-def ReadDataFile_r(FilePath):
-    global fac,N
-    N1 = N-1
-    h = 1/N
-
-
-    xyz = np.loadtxt(FilePath)
-
-
-    bx = np.transpose(np.zeros((N+1)))
-    by = np.transpose(np.zeros((N+1)))
-    bz = np.transpose(np.zeros((N+1)))
-
-    bxp = np.transpose(np.zeros(N+1))
-    byp = np.transpose(np.zeros(N+1))
-    bzp = np.transpose(np.zeros(N+1))
-
-    bx[0],by[0],bz[0] = 1,0,0
-    bx[N],by[N],bz[N] = -1,0,0
-
-
-
-
-    bx[1:N] = xyz[np.arange(0,3*N1-2,3)]
-    by[1:N] = xyz[np.arange(1,3*N1-1,3)]
-    bz[1:N] = xyz[np.arange(2,3*N1,3)]
-
-    #bx,by,bz = xyz[0:N+1,0],xyz[0:N+1,1],xyz[0:N+1,2]
-    bx,by,bz = rotate(bx,by,bz)
-
-    '''
-    fig1 = plt.figure()
-    ax = fig1.add_subplot(111,projection='3d')
-    ax.plot(bx,by,bz)
-    plt.show()
-    '''
-
-    #========================================================
-    #               b'
-    #========================================================
-
-    bxp[0]   = (bx[0]+ bx[N-1])/h
-    byp[0]   = (by[0]+ by[N-1])/h
-    bzp[0]   = (bz[0]+ bz[N-1])/h
-
-    ig = np.arange(1,N+1)
-
-    bxp[ig] = (bx[ig]-bx[ig-1])/h
-    byp[ig] = (by[ig]-by[ig-1])/h
-    bzp[ig] = (bz[ig]-bz[ig-1])/h
-
-
-    #========================================================
-    #               Constructing tangent  t= bxb'
-    #========================================================
-    tx = np.transpose(np.zeros((N+1)))
-    ty = np.transpose(np.zeros((N+1)))
-    tz = np.transpose(np.zeros((N+1)))
-
-    #== tangent ==
-    tx[0:N] = np.multiply(by[0:N],bzp[0:N]) - np.multiply(bz[0:N],byp[0:N])
-    ty[0:N] = np.multiply(bz[0:N],bxp[0:N]) - np.multiply(bx[0:N],bzp[0:N])
-    tz[0:N] = np.multiply(bx[0:N],byp[0:N]) - np.multiply(by[0:N],bxp[0:N])
-
-    #tx[N] = tx[0]#np.insert(tx,N,tx[0,0])
-    #ty[N] = ty[0]#np.insert(ty,N,ty[0,0])
-    #tz[N] = tz[0]#np.insert(tz,N,tz[0,0])
-
-    #========================================================
-
-    #========================================================
-    #           Constructing midline
-    #========================================================
-    #== Midline
-    rx = np.transpose(np.zeros((N+1)))
-    ry = np.transpose(np.zeros((N+1)))
-    rz = np.transpose(np.zeros((N+1)))
-
-    for i in range(N):
-        rx[i+1] = rx[i] + tx[i]
-        ry[i+1] = ry[i] + ty[i]
-        rz[i+1] = rz[i] + tz[i]
-
-    rx = rx - np.mean(rx)
-    ry = ry - np.mean(ry)
-    rz = rz - np.mean(rz)
-
-    l = sum(((rx[0:N-1]-rx[1:N])**2 + (ry[0:N-1]-ry[1:N])**2 +(rz[0:N-1]-rz[1:N])**2)**.5)
-
-    rx,ry,rz = fac*rx/l,fac*ry/l,fac*rz/l
-
-    points = []
-    points.append((float(rx[0]),float(ry[0]),float(rz[0])))
-    for i in range(N):
-         points.append((float(rx[i+1]),float(ry[i+1]),float(rz[i+1])))
-
-
-
-
-    return points
-
 
 
 '''
@@ -356,7 +250,7 @@ ReadDatafile
 =========================================================================
     '''
 def ReadDataFile(FilePath):
-    global fac,N,wd
+    global fac,N,wd,tau
     N1 = N-1
     h = 1/N
     xyz = np.loadtxt(FilePath)
@@ -412,10 +306,25 @@ def ReadDataFile(FilePath):
     tz = np.transpose(np.zeros((N+1)))
 
     #== tangent ==
+
     tx[0:N] = np.multiply(by[0:N],bzp[0:N]) - np.multiply(bz[0:N],byp[0:N])
     ty[0:N] = np.multiply(bz[0:N],bxp[0:N]) - np.multiply(bx[0:N],bzp[0:N])
     tz[0:N] = np.multiply(bx[0:N],byp[0:N]) - np.multiply(by[0:N],bxp[0:N])
 
+    '''
+    tx[0:N-1] = np.multiply(by[0:N-1],bz[1:N]) - np.multiply(bz[0:N-1],by[1:N])
+    ty[0:N-1] = np.multiply(bz[0:N-1],bx[1:N]) - np.multiply(bx[0:N-1],bz[1:N])
+    tz[0:N-1] = np.multiply(bx[0:N-1],by[1:N]) - np.multiply(by[0:N-1],bx[1:N])
+
+    tx[N] = tx[0]#np.insert(tx,N,tx[0,0])
+    ty[N] = ty[0]#np.insert(ty,N,ty[0,0])
+    tz[N] = tz[0]#np.insert(tz,N,tz[0,0])
+    '''
+    #tau = 78.2
+
+    tx = tx/tau
+    ty = ty/tau
+    tz = tz/tau
     #========================================================
 
     #========================================================
@@ -437,9 +346,9 @@ def ReadDataFile(FilePath):
     z2 = np.transpose(np.zeros((N+1)))
 
     for i in range(N):
-        rx[i+1] = rx[i] + tx[i]
-        ry[i+1] = ry[i] + ty[i]
-        rz[i+1] = rz[i] + tz[i]
+        rx[i+1] = rx[i] + h*tx[i]
+        ry[i+1] = ry[i] + h*ty[i]
+        rz[i+1] = rz[i] + h*tz[i]
 
 
    # Transforming the midline
@@ -450,13 +359,15 @@ def ReadDataFile(FilePath):
 
     #== Half width of the strip
 
-    l = sum(((rx[0:N-1]-rx[1:N])**2 + (ry[0:N-1]-ry[1:N])**2 +(rz[0:N-1]-rz[1:N])**2)**.5)
+    l1 = sum(((rx[0:N-1]-rx[1:N])**2 + (ry[0:N-1]-ry[1:N])**2 +(rz[0:N-1]-rz[1:N])**2)**.5)
+    l = l1
+    #wd = l1/40
+    len_b =  sum(((bx[0:N-1]-bx[1:N])**2 + (by[0:N-1]-by[1:N])**2 +(bz[0:N-1]-bz[1:N])**2)**.5)
 
+    print(l)
     rx,ry,rz = fac*rx/l,fac*ry/l,fac*rz/l
+
     #== Half width of the strip
-
-
-
 
     x1 = rx-wd*bx
     y1 = ry-wd*by
@@ -466,10 +377,24 @@ def ReadDataFile(FilePath):
     y2 = ry+wd*by
     z2 = rz+wd*bz
 
+    # === interpolation of the midline and the edges ===
+    '''
+    x1,y1,z1 = fun_interpolate(x1,y1,z1)
+    x2,y2,z2 = fun_interpolate(x2,y2,z2)
+    rx,ry,rz = fun_interpolate(rx,ry,rz)
+    '''
+    #=== Array for the midline ==
+    points = []
+    points.append((float(rx[0]),float(ry[0]),float(rz[0])))
+    for i in range(len(rx)-1):
+         points.append((float(rx[i+1]),float(ry[i+1]),float(rz[i+1])))
 
-    data =  [ [ 0 for i in range(3) ] for j in range(4*N) ]
 
-    for i in range(N):
+
+    # Array for the edges
+    data =  [ [ 0 for i in range(3) ] for j in range(4*(len(x1)-1)) ]
+
+    for i in range(len(x1)-1):
         p1 =  np.arange(4*i,4*i+4)
 
         data[p1[0]][0] = x1[i]
@@ -489,12 +414,7 @@ def ReadDataFile(FilePath):
         data[p1[3]][2] = z1[i+1]
 
 
-
-
-
-
-
-    return data,x1,y1,z1,x2,y2,z2
+    return points,data,x1,y1,z1,x2,y2,z2
 
 
 '''
@@ -513,9 +433,30 @@ def faceindex(N):
 
 '''
 =========================================================================
-Create face index
+Interpolate the midline and the edges for smoothness
 =========================================================================
 '''
+def fun_interpolate(x,y,z):
+    N = len(x)-1
+    N2 = 999
+    x1 = np.transpose(np.zeros((N2+1)))
+    y1 = np.transpose(np.zeros((N2+1)))
+    z1 = np.transpose(np.zeros((N2+1)))
+
+    #==== Linear interpolation
+    s1 = np.transpose(np.linspace(0,1,N+1))
+    s2 = np.transpose(np.linspace(0,1,N2+1))
+
+    x1 = np.interp(s2,s1,x)
+    y1 = np.interp(s2,s1,y)
+    z1 = np.interp(s2,s1,z)
+
+    return x1,y1,z1
+
+
+
+
+
 def rotate(bx,by,bz):
     global th
     th = np.pi/2
@@ -613,19 +554,20 @@ def find_nearest(array, value):
 global N,fac,wd,th,thickness
 
 th = np.pi/2
-fac = 9
-wd  = fac/230
-
-
-
-
+fac = 5#5
+#
+#wd =fac/150
+#wd = .01#fac/60
+#wd  = fac/80  for unknotted configurations
 # For schematic 1, fac = 5, wd  = fac/10
 # For 5pi knot , fac = 5, wd = fac/40
 # For 7pi knot , fac = 5, wd = fac/70
+
+#=== For stable unknotted configurations
+#fac = 15
+wd  =  fac/20
+thickness = wd/15
 thickness = wd/20
-
-
-
 # for branch 1 , n=2
 '''
 fac = 8, wd = fac/25, thickness = wd/20
@@ -642,49 +584,108 @@ fac = 15, wd = fac/45, thickness = wd/20
 
 nr = 6    # number of rulings
 
-N  =  105
+
+
+branch = 1
+
+
+if (branch==1 or branch==2 or branch==3):
+    N=105
+
+if (branch==4 or branch==9):
+    N=180
+if(branch==5):
+    N=140
+if(branch== 6):
+    N=90
+if(branch== 7 or branch==8):
+    N=150
+
+if(branch==11 or branch==14 or branch==15):
+    N=170
+if(branch==12):
+    N=190
+if(branch==13):
+    N=210
+
+N = 240#405#190#220
 N1 = N-1
 h  = 1/N
 
 
-
-branch = 3
-
-path = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' + str(branch) + '/'
+#path = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' + str(branch) + '/'
 path = '/Users/rtodres/Documents/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch' + str(branch) + '/'
 strtau =  path + 'tau_branch_' + str(branch)+ '.txt'
+
 tau1 = np.loadtxt(strtau)
 
 
 
-tau2 = 3*2*np.pi   # torsion value for which I want the equilibrium configuration
+tau2 = 78.2#10*2*np.pi   # torsion value for which I want the equilibrium configuration
 
 
-p1 = find_nearest(tau1,tau2)
+p1 =  find_nearest(tau1,tau2)
 
-#p1 =10
+#p1 = len(tau1)-1
 
-tau  =  int(np.around(tau1[p1-1]*(10**10),decimals=0))
+tau  =  int(np.around(tau1[p1]*(10**10),decimals=0))
 
-print(tau)
+print(p1)
+
+strb = path + 'branch_' + str(branch) + '_N' + str(N) + '_tau_' + str(tau)+ '.txt'
+
+strb = path + 'branch_15_N300_tau_781900000000.txt'
+
+strb = path + 'branch_15_N600_tau_782000000000_unknot1.txt'
+
+strb = path +  'branch_15_N600_tau_782000000000_knot1.txt'
+strb = path +  'branch_1_N240_tau_80936500000.txt'
+
+tau = -8.09365
 #================= Symmetric knots
 
 #  3pi
-strb = ''
 #  1. 5pi knot
 #  path = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch2/'
-#  strb = '5pi_knot_symmetric.txt'
+#strb = path + '5pi_knot_symmetric.txt'
+# N 240
 #  2. 7pi knot
 #  path = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch3/'
-#  strb = '7pi_knot_symmetric.txt'
+#strb = path + '7pi_knot_symmetric.txt'
+#N = 336
+# 3.  9pi knot
+#  path = '/Users/vikashchaurasia/OneDrive/Vikash_Documents/Isometric_deformation/Matlab_files/fixed_rotation_final/data_branch9/'
+#strb = path +  '9pi_knot_symmetric.txt'
+#N = 432
 
 
-strb = path + 'branch_' + str(branch) + '_N' + str(N) + '_tau_' + str(tau)+ '.txt'
-#strb = path + 'branch_1_N120_tau_80940900000_symmetry.txt'#'b_branch_2_N240_symmetric.txt'# 'branch_3_N336_tau_153797061627_symmetry.txt'#'branch_3_N168_tau_154195000000_symmetry.txt'# 'b_branch_3_N336_symmetric.txt'
+#strb = path + 'branch_1_N300_tau_850000000000.txt'
+#strb = path + 'branch_3_N300_tau_714000000000.txt'
+#strb = path + 'branch_4_N300_tau_807000000000.txt'
+#strb = path +  'branch_6_N90_tau_334000000000.txt'# 'branch_5_N140_tau_589000000000.txt'
 
+#==== Unknotted configurations =====
+#strb = path + 'branch_6_N240_tau_279000000000.txt'
+#strb = path +  'branch_6_N300_tau_600000000000.txt'
+#strb = path + 'branch_1_N270_tau_342000000000.txt'
+
+#strb = path + 'branch_8_N300_tau_470000000000.txt'
+#strb = path + 'branch_4_N260_tau_410000000000.txt'
+
+#strb = path + 'branch_12_N190_tau_850000000000.txt'
+#strb = path + 'branch_13_N210_tau_850000000000.txt'
+#'branch_5_N140_tau_534000000000.txt'
+#strb = path + 'b_branch_2_N240_symmetric.txt'# 'branch_3_N336_tau_153797061627_symmetry.txt'#'branch_3_N168_tau_154195000000_symmetry.txt'# 'b_branch_3_N336_symmetric.txt'
+
+#strb = path +  'branch_8_N405_tau_844150000000.txt'
+
+print(strb)
+print(fac)
 #cols = (0,0.976, 0.968,1)  # rgb and facealpha for the mobius surface
 cols = (0.059511,0.223228,0.708376,1)    # Eliot's suggested color
-verts,x1,y1,z1,x2,y2,z2 = ReadDataFile(strb)
+cols = (0.022406,0.110864,0.708376,1) # Darker color
+points,verts,x1,y1,z1,x2,y2,z2 = ReadDataFile(strb)
+
 
 N = int(len(verts)/4)
 faces =  faceindex(N)
@@ -761,12 +762,12 @@ bpy.ops.object.shade_smooth()
 '''
 ========================= Creating midline ===================================
 '''
-points1 = []
+#points1 = []
 #points = ReadDataFile(userinput['filedata'])
 # Curve C10     - Trivial shape
 
 colr = (1,0,0,1)#(0.301,0.811,0.498,1)
-points = ReadDataFile_r(strb)
+#points = ReadDataFile_r(strb)
 orderu = 6
 curve1 = CreateCurve(points, thickness, colr,orderu)            #create curve
 
@@ -784,8 +785,8 @@ curve1 = CreateCurve(points, thickness, colr,orderu)            #create curve
 
 
  #================== creating rulers
-
-#createRulers(x1,y1,z1,x2,y2,z2,nr)
+nr = 12    # number of rulings
+createRulers(x1,y1,z1,x2,y2,z2,nr)
 
 
 

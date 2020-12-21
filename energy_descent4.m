@@ -27,7 +27,7 @@ parameters5();
 
  
          
-for p1= 1:3000 %1:253%length(t1)
+for p1= 1:500%1:4000 %1:253%length(t1)
 
     str0 = ['branch_' num2str(branch) '_N' num2str(N) '_tau_' num2str(round(10^10*16)) '_step_' num2str(p1-1)   '.txt'];
 
@@ -45,7 +45,7 @@ for p1= 1:3000 %1:253%length(t1)
     bx(N+1,1) = -1;
     by(N+1,1) =  0;
     bz(N+1,1) =  0;
-% 
+
 %     bx = smooth(bx,smop{opid});
 %     by = smooth(by,smop{opid});
 %     bz = smooth(bz,smop{opid});

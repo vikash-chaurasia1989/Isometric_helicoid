@@ -23,14 +23,13 @@
  
  
  
-global  N  N1  u v w    f_b    len id uni err qd bx2 E count bxN h tau rho lm bxg byg bzg sig tolB
-global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2
+global  N  N1  u v w    f_b    len id uni err qd bx2 E count bxN h tau rho lm bxg byg bzg sig tolB B
+global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 B_temp p1
 
  
   %   x = initial_guess_loop2();
       
-     count = count+1 ;
-  %----- reading input and constructing bx by bz ----
+   %----- reading input and constructing bx by bz ----
     
   bx(2:N,1)     = x(1:3:3*N1-2,1)    ;
   by(2:N,1)     = x(2:3:3*N1-1,1)    ;
@@ -526,25 +525,28 @@ Z     = Q(:,num_C+1:num_eq)  ;
 %    
      [B1, I ] = sort(diag(D),'ascend');
  
-     B1
-     B1 = sort(real(B1))  ;
      
-     B = real(B1(1));
+     B1 = sort(real(B1))   ;
      
-   %  tolB = 10^-8;
+     B = real(B1(1)) 
      
-     if(abs(B)<tolB)
+     tolB = 4.700175615971375e-01;% 10^-4;
+     
+     
+     if(B>0)
          stbl=1;
-     else
+     else 
          
-         if(B>0)
-             stbl = 1;
-         else
-             stbl =-1;
-             
-         end
-         
+        if(abs(B)<tolB)
+         stbl=1;
+        else
+            stbl=-1;
+        end
      end
+         
+        
+         
+   B_temp(p1) = B;
      
      
  

@@ -373,29 +373,65 @@ def find_nearest(array, value):
 global N,fac,wd,th,thickness
 
 th = np.pi/2
-fac = 5
-wd  = fac/17
+fac = 1
+wd  = fac/50
 
-nfold = 3
+nfold = 3*2
 
 
-N     = 18*80
+N     = 50*nfold
 N1    = N-1
-nfold = 3
-A = 8.075921715351875e+01
-B = 2.591801747383097e+02
 
-al1 = A + np.sqrt(A**2 + B**2)
-al2 = 0;
-al3 = -A + np.sqrt(A**2 + B**2)
+#===== values for 3fold ===
+
+if(nfold==3*2):
+    A    = 4.043808837982855e+01
+    B    = 1.678602921926909e+04
+    tau1 = -8.09361
+elif(nfold==5*2):
+    A    = 1.280530390782753e+01
+    B    = 1.837823905891308e+05
+    tau1 = 11.98423030321598
+elif(nfold==7*2):
+    A    =-8.732663887726436e+01
+    B    = 7.988414727595540e+05
+    tau1 = 15.37971
+elif(nfold==9*2):
+    A    =-2.664560362414188e+02
+    B    = 2.325042020521571e+06
+    tau1 = 18.47472
+elif(nfold==11*2):
+    A    =-5.284567289865532e+02
+    B    = 5.388830397947116e+06
+    tau1 = 21.35104
+elif(nfold==25*2):
+    #A    = 3.676534655636211e+03
+    #B    = 9.711831243309331e+07
+    A    = -9.727745545246296e+03
+    B    =  6.598490143924065e+08
+    tau1 = 78.25
+
+
+    N = 1000
+    N1 = N-1
+
+al1 = 2*A + 2*np.sqrt(A**2+B)
+al2 = 0
+al3 = -2*A +2*np.sqrt(A**2+B)
 
 p = np.sqrt((al3-al2)/(al3+al1))
 q = np.sqrt(1-al2/al3)
 r = 1/2*np.sqrt(al3+al1)
-K = sp.ellipk(p)
-s = np.linspace(0,2*nfold*K/r,N+1)
-tau = 8.094090000000000e+00*2*nfold*K/r  #8.093946633549898e+00
-h = 1/N*2*nfold*K/r;
+print(p)
+K = sp.ellipk(p);
+
+s = np.linspace(0,nfold*K/r,N+1);
+
+tau = tau1*nfold*K/r;
+
+h = 1/N*nfold*K/r;
+
+
 
 rx = np.zeros(N+1)
 ry = np.zeros(N+1)
@@ -423,17 +459,28 @@ kappa = np.sqrt(al3*(1-q**2*sn**2))
 #=== correcting sign of kappa in the relevant intervals of s
 
 #=== correcting sign of kappa in the relevant intervals of s
-
+'''
 for m in range(0,nfold-1,2):
     kappa[int((2*m+1)*N/(2*nfold)+1):int((2*m+1)*N/(2*nfold) + N/(nfold))] = -kappa[int((2*m+1)*N/(2*nfold)+1):int((2*m+1)*N/(2*nfold) + N/(nfold))]
 
 m = nfold-1
 kappa[int((2*m+1)*N/(2*nfold)+1):N+1] = -kappa[int((2*m+1)*N/(2*nfold)+1):N+1]
+'''
+
+
+for i in range(1,int(((nfold/2-1)/2))+1):
+     #ind = int(4*(i-1)*N/nfold)+1 + temp
+     ind = np.arange((4*i-3)*N/nfold,(4*i-1)*N/nfold)
+     kappa[int((4*i-3)*N/nfold):int((4*i-1)*N/nfold)] = -kappa[int((4*i-3)*N/nfold):int((4*i-1)*N/nfold)]
+
+#ind = np.arange(int((nfold-1)*N/nfold),(N+1))
+kappa[int((nfold-1)*N/nfold):(N+1)] = -kappa[int((nfold-1)*N/nfold):(N+1)]
+
 
 
 # === frenet frame integration
 initial = np.array([0, -0.1276, 0, 0.9280, 0, -0.3726, 0.3726, 0, 0.9280, 0, 1, 0],'d')
-initial = np.array([0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0, 1],'d')
+initial = np.array([0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0],'d')
 
 rx[0] = initial[0]
 ry[0] = initial[1]
@@ -453,6 +500,11 @@ bz[0] = initial[11]
 
 i = 0
 
+rx[i+1] = rx[i] + h*tx[i];
+ry[i+1] = ry[i] + h*ty[i];
+rz[i+1] = rz[i] + h*tz[i];
+
+
 tx[i+1] = tx[i] + kappa[i]*h*nx[i]
 ty[i+1] = ty[i] + kappa[i]*h*ny[i]
 tz[i+1] = tz[i] + kappa[i]*h*nz[i]
@@ -469,10 +521,13 @@ bz[i+1] = bz[i] - tau*nz[i]*h
 
 for i in range(1,N):
 
+    rx[i] = rx[i-1]+h*tx[i-1]
+    ry[i] = ry[i-1]+h*ty[i-1]
+    rz[i] = rz[i-1]+h*tz[i-1]
+
     tx[i+1] = tx[i-1] + kappa[i]*2*h*nx[i]
     ty[i+1] = ty[i-1] + kappa[i]*2*h*ny[i]
     tz[i+1] = tz[i-1] + kappa[i]*2*h*nz[i]
-
 
     nx[i+1] = nx[i-1] + (-kappa[i]*tx[i] + tau*bx[i])*2*h
     ny[i+1] = ny[i-1] + (-kappa[i]*ty[i] + tau*by[i])*2*h
@@ -482,10 +537,10 @@ for i in range(1,N):
     by[i+1] = by[i-1] - tau*ny[i]*2*h
     bz[i+1] = bz[i-1] - tau*nz[i]*2*h
 
-for i in range(1,N+1):
-    rx[i] = rx[i-1]+h*tx[i-1]
-    ry[i] = ry[i-1]+h*ty[i-1]
-    rz[i] = rz[i-1]+h*tz[i-1]
+i = N
+rx[i] = rx[i-1]+h*tx[i-1]
+ry[i] = ry[i-1]+h*ty[i-1]
+rz[i] = rz[i-1]+h*tz[i-1]
 
 #===== Integration complete ===
 
@@ -545,6 +600,8 @@ thickness = wd/20
 
 #cols = (0,0.976, 0.968,1)  # rgb and facealpha for the mobius surface
 cols = (0.059511,0.223228,0.708376,1)    # Eliot's suggested color
+cols = (0.022406,0.110864,0.708376,1) # Darker color
+
 #verts,x1,y1,z1,x2,y2,z2 = ReadDataFile(strb)
 
 N = int(len(verts)/4)
@@ -645,8 +702,8 @@ curve1 = CreateCurve(points, thickness, colr,orderu)            #create curve
 
 
  #================== creating rulers
-nr = 6
-createRulers(x1,y1,z1,x2,y2,z2,nr)
+nr = 12
+#createRulers(x1,y1,z1,x2,y2,z2,nr)
 
 
 

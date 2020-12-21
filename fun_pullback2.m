@@ -1,34 +1,8 @@
 function [F,J] = fun_pullback2(x)
  
-%==== This is the version that gives same results as if discrete
-%formulation is used.. We use this function to generate all the results for
-%data_3pi_2
-
-%=== Difference between fun_jacobian and fun_jacobian2 is that in fun_jacobian
-%we used O(h^2) central difference scheme for x' while in fun_jacobian2, we
-%used O(h) backward difference method
-
-% My current understanding is that one should always use backward Euler for
-% 1st order disretization. 
-
-
- %--- in this file, we solve for minimizing bending energy of the ruled surface --
-   
-   %  b'''' + lm'*b' + lm*b'' - rho b + gm x b' = 0;
-   %
-   % --- constraints --
-   %   |b| = 1 and |b|' = \tau
-   %--- This is the final version of the analytical jacobian for finite
-   %element discretization of the continouous formulation 
-  
- %=== Difference between fun_jacobian2 and this file is that in this file,
- %we don't arrest the rotation of the binormal curve. Thus, in this file,
- %we also solve for bz(2,1) and bz(N,1). We realized that arresting bz(2,1)
- %and bz(N,1) to 0 in fun_jacobian2 led to overconstraining the system
- %which resulted in incorrect stability results 
- 
- %====  This is the version we will use for the paper 
- %===== Data generated using this code is saved in data_3pi_3, data_4pi_3, and data_5pi_3 
+%====  
+%=== This code gives configuration on the constrained manifold nearest to
+%given point 
  
  
 global  N  N1  u v w       len id uni err qd bx2 E count bxN h tau rho lm bxg byg bzg sig bx0 by0 bz0
@@ -127,14 +101,14 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
         gmz = gm(3);
         
         
-        f_b(3*p-5,1) = bx(p,1)-bx0(p,1) + lmp(p-1)*bxp(p,1) + lm(p)*bx2p(p,1) - rho(p-1)*bx(p,1) + gmx;
-        f_b(3*p-4,1) = by(p,1)-by0(p,1) + lmp(p-1)*byp(p,1) + lm(p)*by2p(p,1) - rho(p-1)*by(p,1) + gmy;
-        f_b(3*p-3,1) = bz(p,1)-bz0(p,1) + lmp(p-1)*bzp(p,1) + lm(p)*bz2p(p,1) - rho(p-1)*bz(p,1) + gmz;
+        F(3*p-5,1) = bx(p,1)-bx0(p,1) + lmp(p-1)*bxp(p,1) + lm(p)*bx2p(p,1) - rho(p-1)*bx(p,1) + gmx;
+        F(3*p-4,1) = by(p,1)-by0(p,1) + lmp(p-1)*byp(p,1) + lm(p)*by2p(p,1) - rho(p-1)*by(p,1) + gmy;
+        F(3*p-3,1) = bz(p,1)-bz0(p,1) + lmp(p-1)*bzp(p,1) + lm(p)*bz2p(p,1) - rho(p-1)*bz(p,1) + gmz;
         
         
-        f_b(3*N1+p-1,1) = 1/2*(bx(p,1)^2 + by(p,1)^2 + bz(p,1)^2 -1);
+        F(3*N1+p-1,1) = 1/2*(bx(p,1)^2 + by(p,1)^2 + bz(p,1)^2 -1);
         
-        f_b(4*N1+p-1,1) = 1/2*(bxp(p,1)^2 + byp(p,1)^2 + bzp(p,1)^2 - tau^2); 
+        F(4*N1+p-1,1) = 1/2*(bxp(p,1)^2 + byp(p,1)^2 + bzp(p,1)^2 - tau^2); 
         
        %--- closure -----
 %        
@@ -146,32 +120,32 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
   
   ind = 3*p-5:3*p-3;
   
-  jac(ind,ind)     = id*(1 + lmp(p-1,1)/h -2*lm(p)/h^2-rho(p-1))    ;  
-  jac(ind,ind+3)   = id*(lm(p)/h^2)  +om                              ; 
+  J(ind,ind)     = id*(1 + lmp(p-1,1)/h -2*lm(p)/h^2-rho(p-1))    ;  
+  J(ind,ind+3)   = id*(lm(p)/h^2)  +om                              ; 
     
  %   
   %--- Constraint gradient ---
   
   %--- unit vector constraint --
-  jac(3*N1+p-1,ind) = [bx(p) by(p) bz(p)];
+  J(3*N1+p-1,ind) = [bx(p) by(p) bz(p)];
   %--- unit speed constraint --
-  jac(4*N1+p-1,ind)  =  1/(h)*[bxp(p,1) byp(p,1) bzp(p,1)];
+  J(4*N1+p-1,ind)  =  1/(h)*[bxp(p,1) byp(p,1) bzp(p,1)];
    
    %---- closure ----
-  jac(5*N1+2:5*N1+4,ind) =   [ 0                 -(bz(p-1)-bz(p+1))   (by(p-1)-by(p+1))  ;
+  J(5*N1+2:5*N1+4,ind) =   [ 0                 -(bz(p-1)-bz(p+1))   (by(p-1)-by(p+1))  ;
                                (bz(p-1)-bz(p+1))       0             -(bx(p-1)-bx(p+1))  ;
                               -(by(p-1)-by(p+1))  (bx(p-1)-bx(p+1))           0        ] ;  
  
    %-- differentiation with rho
    
-   jac(ind,3*N1+p-1) = -[bx(p) ;by(p) ;bz(p)];
+   J(ind,3*N1+p-1) = -[bx(p) ;by(p) ;bz(p)];
   
    %-- differentiation with lambda 
-   jac(ind,4*N1+p-1)   = -1/h*[bxp(p) ;byp(p) ;bzp(p)]; 
-   jac(ind,4*N1+p)     =  1/h*[bxp(p) ;byp(p) ;bzp(p)] +  [bx2p(p) ;by2p(p) ;bz2p(p)]; 
+   J(ind,4*N1+p-1)   = -1/h*[bxp(p) ;byp(p) ;bzp(p)]; 
+   J(ind,4*N1+p)     =  1/h*[bxp(p) ;byp(p) ;bzp(p)] +  [bx2p(p) ;by2p(p) ;bz2p(p)]; 
 
   %-- differentiation with u v w 
-   jac(ind,5*N1+2:5*N1+4)       = - [ 0                 -(bz(p-1)-bz(p+1))   (by(p-1)-by(p+1))  ;
+   J(ind,5*N1+2:5*N1+4)       = - [ 0                 -(bz(p-1)-bz(p+1))   (by(p-1)-by(p+1))  ;
                                     (bz(p-1)-bz(p+1))       0             -(bx(p-1)-bx(p+1))  ;
                                    -(by(p-1)-by(p+1))  (bx(p-1)-bx(p+1))           0        ] ;  
     
@@ -189,14 +163,14 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
         gmz = gm(3);
 % %         
         
-        f_b(3*p-5,1) = bx(p,1)-bx0(p,1) + lmp(p-1)*bxp(p,1) + lm(p)*bx2p(p,1) - rho(p-1)*bx(p,1) + gmx;
-        f_b(3*p-4,1) = by(p,1)-by0(p,1) + lmp(p-1)*byp(p,1) + lm(p)*by2p(p,1) - rho(p-1)*by(p,1) + gmy;
-        f_b(3*p-3,1) = bz(p,1)-bz0(p,1) + lmp(p-1)*bzp(p,1) + lm(p)*bz2p(p,1) - rho(p-1)*bz(p,1) + gmz;
+        F(3*p-5,1) = bx(p,1)-bx0(p,1) + lmp(p-1)*bxp(p,1) + lm(p)*bx2p(p,1) - rho(p-1)*bx(p,1) + gmx;
+        F(3*p-4,1) = by(p,1)-by0(p,1) + lmp(p-1)*byp(p,1) + lm(p)*by2p(p,1) - rho(p-1)*by(p,1) + gmy;
+        F(3*p-3,1) = bz(p,1)-bz0(p,1) + lmp(p-1)*bzp(p,1) + lm(p)*bz2p(p,1) - rho(p-1)*bz(p,1) + gmz;
         
         
-        f_b(3*N1+p-1,1) = 1/2*(bx(p,1)^2 + by(p,1)^2 + bz(p,1)^2 -1);
+        F(3*N1+p-1,1) = 1/2*(bx(p,1)^2 + by(p,1)^2 + bz(p,1)^2 -1);
         
-        f_b(4*N1+p-1,1) = 1/2*(bxp(p,1)^2 + byp(p,1)^2 + bzp(p,1)^2 - tau^2); 
+        F(4*N1+p-1,1) = 1/2*(bxp(p,1)^2 + byp(p,1)^2 + bzp(p,1)^2 - tau^2); 
         
        %--- closure -----
        
@@ -208,35 +182,35 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
   
   ind = 3*p-5:3*p-3;
   
-  jac(ind,ind-3)   = id*(  - lmp(p-1,1)/h + lm(p)/h^2) - om        ;
-  jac(ind,ind)     = id*(1 + lmp(p-1,1)/h -2*lm(p)/h^2-rho(p-1))        ;  
-  jac(ind,ind+3)   = id*(   +lm(p)/h^2)    +om  ; 
+  J(ind,ind-3)   = id*(  - lmp(p-1,1)/h + lm(p)/h^2) - om        ;
+  J(ind,ind)     = id*(1 + lmp(p-1,1)/h -2*lm(p)/h^2-rho(p-1))        ;  
+  J(ind,ind+3)   = id*(   +lm(p)/h^2)    +om  ; 
    
   
   
   %--- Constraint gradient ---
   
   %--- unit vector constraint --
-  jac(3*N1+p-1,ind) = [bx(p) by(p) bz(p)];
+  J(3*N1+p-1,ind) = [bx(p) by(p) bz(p)];
   %--- unit speed constraint --
-  jac(4*N1+p-1,ind-3) = -1/(h)*[bxp(p,1) byp(p,1) bzp(p,1)];
-  jac(4*N1+p-1,ind)   =  1/(h)*[bxp(p,1) byp(p,1) bzp(p,1)];
+  J(4*N1+p-1,ind-3) = -1/(h)*[bxp(p,1) byp(p,1) bzp(p,1)];
+  J(4*N1+p-1,ind)   =  1/(h)*[bxp(p,1) byp(p,1) bzp(p,1)];
    
    %---- closure ----
-  jac(5*N1+2:5*N1+4,ind) =   [ 0                 -(bz(p-1)-bz(p+1))   (by(p-1)-by(p+1))  ;
+  J(5*N1+2:5*N1+4,ind) =   [ 0                 -(bz(p-1)-bz(p+1))   (by(p-1)-by(p+1))  ;
                                (bz(p-1)-bz(p+1))       0             -(bx(p-1)-bx(p+1))  ;
                               -(by(p-1)-by(p+1))  (bx(p-1)-bx(p+1))           0        ] ;  
  
    %-- differentiation with rho
    
-   jac(ind,3*N1+p-1) = -[bx(p) ;by(p) ;bz(p)];
+   J(ind,3*N1+p-1) = -[bx(p) ;by(p) ;bz(p)];
   
    %-- differentiation with lambda 
-   jac(ind,4*N1+p-1)   = -1/h*[bxp(p) ;byp(p) ;bzp(p)]; 
-   jac(ind,4*N1+p)     =  1/h*[bxp(p) ;byp(p) ;bzp(p)] +  [bx2p(p) ;by2p(p) ;bz2p(p)]; 
+   J(ind,4*N1+p-1)   = -1/h*[bxp(p) ;byp(p) ;bzp(p)]; 
+   J(ind,4*N1+p)     =  1/h*[bxp(p) ;byp(p) ;bzp(p)] +  [bx2p(p) ;by2p(p) ;bz2p(p)]; 
 
   %-- differentiation with u v w 
-   jac(ind,5*N1+2:5*N1+4)       = - [ 0                 -(bz(p-1)-bz(p+1))   (by(p-1)-by(p+1))  ;
+   J(ind,5*N1+2:5*N1+4)       = - [ 0                 -(bz(p-1)-bz(p+1))   (by(p-1)-by(p+1))  ;
                                     (bz(p-1)-bz(p+1))       0             -(bx(p-1)-bx(p+1))  ;
                                       -(by(p-1)-by(p+1))  (bx(p-1)-bx(p+1))           0        ] ;  
   
@@ -256,14 +230,14 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
         gmz = gm(3);
         
         
-        f_b(3*p-5,1) = bx(p,1)-bx0(p,1) + lmp(p-1)*bxp(p,1) + lm(p)*bx2p(p,1) - rho(p-1)*bx(p,1) + gmx;
-        f_b(3*p-4,1) = by(p,1)-by0(p,1) + lmp(p-1)*byp(p,1) + lm(p)*by2p(p,1) - rho(p-1)*by(p,1) + gmy;
-        f_b(3*p-3,1) = bz(p,1)-bz0(p,1) + lmp(p-1)*bzp(p,1) + lm(p)*bz2p(p,1) - rho(p-1)*bz(p,1) + gmz;
+        F(3*p-5,1) = bx(p,1)-bx0(p,1) + lmp(p-1)*bxp(p,1) + lm(p)*bx2p(p,1) - rho(p-1)*bx(p,1) + gmx;
+        F(3*p-4,1) = by(p,1)-by0(p,1) + lmp(p-1)*byp(p,1) + lm(p)*by2p(p,1) - rho(p-1)*by(p,1) + gmy;
+        F(3*p-3,1) = bz(p,1)-bz0(p,1) + lmp(p-1)*bzp(p,1) + lm(p)*bz2p(p,1) - rho(p-1)*bz(p,1) + gmz;
         
         
-        f_b(3*N1+p-1,1) = 1/2*(bx(p,1)^2 + by(p,1)^2 + bz(p,1)^2 -1);
+        F(3*N1+p-1,1) = 1/2*(bx(p,1)^2 + by(p,1)^2 + bz(p,1)^2 -1);
         
-        f_b(4*N1+p-1,1) = 1/2*(bxp(p,1)^2 + byp(p,1)^2 + bzp(p,1)^2 - tau^2); 
+        F(4*N1+p-1,1) = 1/2*(bxp(p,1)^2 + byp(p,1)^2 + bzp(p,1)^2 - tau^2); 
         
        %--- closure -----
        
@@ -276,34 +250,34 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
   
   ind = 3*p-5:3*p-3;
   
-  jac(ind,ind-3)  = id*( - lmp(p-1,1)/h + lm(p)/h^2) - om            ;
-  jac(ind,ind)     = id*(1 + lmp(p-1,1)/h -2*lm(p)/h^2-rho(p-1))     ;  
-  jac(ind,ind+3)   = id*(   +lm(p)/h^2)    + om                      ; 
+  J(ind,ind-3)  = id*( - lmp(p-1,1)/h + lm(p)/h^2) - om            ;
+  J(ind,ind)     = id*(1 + lmp(p-1,1)/h -2*lm(p)/h^2-rho(p-1))     ;  
+  J(ind,ind+3)   = id*(   +lm(p)/h^2)    + om                      ; 
     
   
   %--- Constraint gradient ---
   
   %--- unit vector constraint --
-  jac(3*N1+p-1,ind) = [bx(p) by(p) bz(p)];
+  J(3*N1+p-1,ind) = [bx(p) by(p) bz(p)];
   %--- unit speed constraint --
-  jac(4*N1+p-1,ind-3) = -1/(h)*[bxp(p,1) byp(p,1) bzp(p,1)];
-  jac(4*N1+p-1,ind)   =  1/(h)*[bxp(p,1) byp(p,1) bzp(p,1)];
+  J(4*N1+p-1,ind-3) = -1/(h)*[bxp(p,1) byp(p,1) bzp(p,1)];
+  J(4*N1+p-1,ind)   =  1/(h)*[bxp(p,1) byp(p,1) bzp(p,1)];
    
    %---- closure ----
-  jac(5*N1+2:5*N1+4,ind) =   [ 0                 -(bz(p-1)-bz(p+1))   (by(p-1)-by(p+1))  ;
+  J(5*N1+2:5*N1+4,ind) =   [ 0                 -(bz(p-1)-bz(p+1))   (by(p-1)-by(p+1))  ;
                                (bz(p-1)-bz(p+1))       0             -(bx(p-1)-bx(p+1))  ;
                               -(by(p-1)-by(p+1))  (bx(p-1)-bx(p+1))           0        ] ;  
  
    %-- differentiation with rho
    
-   jac(ind,3*N1+p-1) = -[bx(p) ;by(p) ;bz(p)];
+   J(ind,3*N1+p-1) = -[bx(p) ;by(p) ;bz(p)];
   
    %-- differentiation with lambda 
-   jac(ind,4*N1+p-1)   = -1/h*[bxp(p) ;byp(p) ;bzp(p)]; 
-   jac(ind,4*N1+p)     =  1/h*[bxp(p) ;byp(p) ;bzp(p)] +  [bx2p(p) ;by2p(p) ;bz2p(p)]; 
+   J(ind,4*N1+p-1)   = -1/h*[bxp(p) ;byp(p) ;bzp(p)]; 
+   J(ind,4*N1+p)     =  1/h*[bxp(p) ;byp(p) ;bzp(p)] +  [bx2p(p) ;by2p(p) ;bz2p(p)]; 
 
   %-- differentiation with u v w 
-     jac(ind,5*N1+2:5*N1+4)       = - [ 0                 -(bz(p-1)-bz(p+1))   (by(p-1)-by(p+1))  ;
+     J(ind,5*N1+2:5*N1+4)       = - [ 0                 -(bz(p-1)-bz(p+1))   (by(p-1)-by(p+1))  ;
                                     (bz(p-1)-bz(p+1))       0             -(bx(p-1)-bx(p+1))  ;
                                       -(by(p-1)-by(p+1))  (bx(p-1)-bx(p+1))           0        ] ;  
 
@@ -322,14 +296,14 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
         gmz = gm(3);
         
         
-        f_b(3*p-5,1) = bx(p,1)-bx0(p,1) + lmp(p-1)*bxp(p,1) + lm(p)*bx2p(p,1) - rho(p-1)*bx(p,1) + gmx;
-        f_b(3*p-4,1) = by(p,1)-by0(p,1) + lmp(p-1)*byp(p,1) + lm(p)*by2p(p,1) - rho(p-1)*by(p,1) + gmy;
-        f_b(3*p-3,1) = bz(p,1)-bz0(p,1) + lmp(p-1)*bzp(p,1) + lm(p)*bz2p(p,1) - rho(p-1)*bz(p,1) + gmz;
+        F(3*p-5,1) = bx(p,1)-bx0(p,1) + lmp(p-1)*bxp(p,1) + lm(p)*bx2p(p,1) - rho(p-1)*bx(p,1) + gmx;
+        F(3*p-4,1) = by(p,1)-by0(p,1) + lmp(p-1)*byp(p,1) + lm(p)*by2p(p,1) - rho(p-1)*by(p,1) + gmy;
+        F(3*p-3,1) = bz(p,1)-bz0(p,1) + lmp(p-1)*bzp(p,1) + lm(p)*bz2p(p,1) - rho(p-1)*bz(p,1) + gmz;
         
         
-        f_b(3*N1+p-1,1) = 1/2*(bx(p,1)^2 + by(p,1)^2 + bz(p,1)^2 -1);
+        F(3*N1+p-1,1) = 1/2*(bx(p,1)^2 + by(p,1)^2 + bz(p,1)^2 -1);
         
-        f_b(4*N1+p-1,1) = 1/2*(bxp(p,1)^2 + byp(p,1)^2 + bzp(p,1)^2 - tau^2); 
+        F(4*N1+p-1,1) = 1/2*(bxp(p,1)^2 + byp(p,1)^2 + bzp(p,1)^2 - tau^2); 
         
        %--- closure -----
        
@@ -341,35 +315,35 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
   
   ind = 3*p-5:3*p-3;
   
-  jac(ind,ind-3)   = id*(  - lmp(p-1,1)/h + lm(p)/h^2) - om            ;
-  jac(ind,ind)     = id*(1 + lmp(p-1,1)/h -2*lm(p)/h^2-rho(p-1))   ;  
-  jac(ind,ind+3)   = id*(0   +lm(p)/h^2)             +om                   ; 
+  J(ind,ind-3)   = id*(  - lmp(p-1,1)/h + lm(p)/h^2) - om            ;
+  J(ind,ind)     = id*(1 + lmp(p-1,1)/h -2*lm(p)/h^2-rho(p-1))   ;  
+  J(ind,ind+3)   = id*(0   +lm(p)/h^2)             +om                   ; 
    
   
   
   %--- Constraint gradient ---
   
   %--- unit vector constraint --
-  jac(3*N1+p-1,ind) = [bx(p) by(p) bz(p)];
+  J(3*N1+p-1,ind) = [bx(p) by(p) bz(p)];
   %--- unit speed constraint --
-  jac(4*N1+p-1,ind-3) = -1/(h)*[bxp(p,1) byp(p,1) bzp(p,1)];
-  jac(4*N1+p-1,ind)   =  1/(h)*[bxp(p,1) byp(p,1) bzp(p,1)];
+  J(4*N1+p-1,ind-3) = -1/(h)*[bxp(p,1) byp(p,1) bzp(p,1)];
+  J(4*N1+p-1,ind)   =  1/(h)*[bxp(p,1) byp(p,1) bzp(p,1)];
    
    %---- closure ----
-  jac(5*N1+2:5*N1+4,ind) =   [ 0                 -(bz(p-1)-bz(p+1))   (by(p-1)-by(p+1))  ;
+  J(5*N1+2:5*N1+4,ind) =   [ 0                 -(bz(p-1)-bz(p+1))   (by(p-1)-by(p+1))  ;
                                (bz(p-1)-bz(p+1))       0             -(bx(p-1)-bx(p+1))  ;
                               -(by(p-1)-by(p+1))  (bx(p-1)-bx(p+1))           0        ] ;  
  
    %-- differentiation with rho
    
-   jac(ind,3*N1+p-1) = -[bx(p) ;by(p) ;bz(p)];
+   J(ind,3*N1+p-1) = -[bx(p) ;by(p) ;bz(p)];
   
    %-- differentiation with lambda 
-   jac(ind,4*N1+p-1)   = -1/h*[bxp(p) ;byp(p) ;bzp(p)]; 
-   jac(ind,4*N1+p)     =  1/h*[bxp(p) ;byp(p) ;bzp(p)] +  [bx2p(p) ;by2p(p) ;bz2p(p)]; 
+   J(ind,4*N1+p-1)   = -1/h*[bxp(p) ;byp(p) ;bzp(p)]; 
+   J(ind,4*N1+p)     =  1/h*[bxp(p) ;byp(p) ;bzp(p)] +  [bx2p(p) ;by2p(p) ;bz2p(p)]; 
 
    %-- differentiation with u v w 
-   jac(ind,5*N1+2:5*N1+4)       = - [ 0                 -(bz(p-1)-bz(p+1))   (by(p-1)-by(p+1))  ;
+   J(ind,5*N1+2:5*N1+4)       = - [ 0                 -(bz(p-1)-bz(p+1))   (by(p-1)-by(p+1))  ;
                                     (bz(p-1)-bz(p+1))       0             -(bx(p-1)-bx(p+1))  ;
                                       -(by(p-1)-by(p+1))  (bx(p-1)-bx(p+1))           0        ] ;  
 
@@ -388,14 +362,14 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
  
  
  
- f_b(3*p-5,1) = bx(p,1)-bx0(p,1) + lmp(p-1)*bxp(p,1) + lm(p)*bx2p(p,1) - rho(p-1)*bx(p,1) + gmx;
- f_b(3*p-4,1) = by(p,1)-by0(p,1) + lmp(p-1)*byp(p,1) + lm(p)*by2p(p,1) - rho(p-1)*by(p,1) + gmy;
- f_b(3*p-3,1) = bz(p,1)-bz0(p,1) + lmp(p-1)*bzp(p,1) + lm(p)*bz2p(p,1) - rho(p-1)*bz(p,1) + gmz;
+ F(3*p-5,1) = bx(p,1)-bx0(p,1) + lmp(p-1)*bxp(p,1) + lm(p)*bx2p(p,1) - rho(p-1)*bx(p,1) + gmx;
+ F(3*p-4,1) = by(p,1)-by0(p,1) + lmp(p-1)*byp(p,1) + lm(p)*by2p(p,1) - rho(p-1)*by(p,1) + gmy;
+ F(3*p-3,1) = bz(p,1)-bz0(p,1) + lmp(p-1)*bzp(p,1) + lm(p)*bz2p(p,1) - rho(p-1)*bz(p,1) + gmz;
  
  
- f_b(3*N1+p-1,1) = 1/2*(bx(p,1)^2 + by(p,1)^2 + bz(p,1)^2 -1)         ;
+ F(3*N1+p-1,1) = 1/2*(bx(p,1)^2 + by(p,1)^2 + bz(p,1)^2 -1)         ;
  
- f_b(4*N1+p-1,1) = 1/2*(bxp(p,1)^2 + byp(p,1)^2 + bzp(p,1)^2 - tau^2) ;
+ F(4*N1+p-1,1) = 1/2*(bxp(p,1)^2 + byp(p,1)^2 + bzp(p,1)^2 - tau^2) ;
  
  %--- closure -----
  
@@ -404,59 +378,56 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac
                        bx(p-1,1)*by(p,1) - by(p-1,1)*bx(p,1) ] ;
  
  
- f_b(5*N1+2:5*N1+4,1) =    f_c +     [by(N,1)*bz(N+1,1) - bz(N,1)*by(N+1,1)   ;
+ F(5*N1+2:5*N1+4,1) =    f_c +     [by(N,1)*bz(N+1,1) - bz(N,1)*by(N+1,1)   ;
                                                           bz(N,1)*bx(N+1,1) - bx(N,1)*bz(N+1,1)   ;
                                                           bx(N,1)*by(N+1,1) - by(N,1)*bx(N+1,1) ] ;
  
  
- f_b(5*N1+1,1) = 1/2*(bxp(N+1,1)^2 + byp(N+1,1)^2 + bzp(N+1,1)^2 - tau^2)   ;
+ F(5*N1+1,1) = 1/2*(bxp(N+1,1)^2 + byp(N+1,1)^2 + bzp(N+1,1)^2 - tau^2)   ;
  
  %==================== Jacobian entry ================================
  
  ind = 3*p-5:3*p-3;
  
- jac(ind,ind-3)   = id*(0 - lmp(p-1,1)/h + lm(p)/h^2) - om           ;
- jac(ind,ind)     = id*(1 + lmp(p-1,1)/h -2*lm(p)/h^2-rho(p-1))    ;
+ J(ind,ind-3)   = id*(0 - lmp(p-1,1)/h + lm(p)/h^2) - om           ;
+ J(ind,ind)     = id*(1 + lmp(p-1,1)/h -2*lm(p)/h^2-rho(p-1))    ;
  
  
     
   
-  %jac(5*N1+2:5*N1+4,3*N1-2:3*N1) = .5*[0 0 0; 0 0 -1;0 1 0];
+  %J(5*N1+2:5*N1+4,3*N1-2:3*N1) = .5*[0 0 0; 0 0 -1;0 1 0];
   %--- Constraint gradient ---
   
   %--- unit vector constraint --
-  jac(3*N1+p-1,ind) = [bx(p) by(p) bz(p)];
+  J(3*N1+p-1,ind) = [bx(p) by(p) bz(p)];
   %--- unit speed constraint --
-  jac(4*N1+p-1,ind-3) = -1/(h)*[bxp(p,1) byp(p,1) bzp(p,1)];     % b'(N)
-  jac(4*N1+p-1,ind)   =  1/(h)*[bxp(p,1) byp(p,1) bzp(p,1)];
+  J(4*N1+p-1,ind-3) = -1/(h)*[bxp(p,1) byp(p,1) bzp(p,1)];     % b'(N)
+  J(4*N1+p-1,ind)   =  1/(h)*[bxp(p,1) byp(p,1) bzp(p,1)];
   
-  jac(5*N1+1,ind)   = -1/h*[bxp(N+1,1) byp(N+1,1) bzp(N+1,1)];  %b'(N+1)
+  J(5*N1+1,ind)   = -1/h*[bxp(N+1,1) byp(N+1,1) bzp(N+1,1)];  %b'(N+1)
    
    %---- closure ----
-  jac(5*N1+2:5*N1+4,ind) =    [ 0                 -(bz(p-1)-bz(p+1))   (by(p-1)-by(p+1))  ;
+  J(5*N1+2:5*N1+4,ind) =    [ 0                 -(bz(p-1)-bz(p+1))   (by(p-1)-by(p+1))  ;
                                (bz(p-1)-bz(p+1))       0             -(bx(p-1)-bx(p+1))  ;
                               -(by(p-1)-by(p+1))  (bx(p-1)-bx(p+1))           0        ] ;  
  
    %-- differentiation with rho
    
-   jac(ind,3*N1+p-1) = -[bx(p) ;by(p) ;bz(p)];
+   J(ind,3*N1+p-1) = -[bx(p) ;by(p) ;bz(p)];
   
    %-- differentiation with lambda 
-   jac(ind,4*N1+p-1)   = -1/h*[bxp(p) ;byp(p) ;bzp(p)]; 
-   jac(ind,4*N1+p)     =  1/h*[bxp(p) ;byp(p) ;bzp(p)] +  [bx2p(p) ;by2p(p) ;bz2p(p)]; 
+   J(ind,4*N1+p-1)   = -1/h*[bxp(p) ;byp(p) ;bzp(p)]; 
+   J(ind,4*N1+p)     =  1/h*[bxp(p) ;byp(p) ;bzp(p)] +  [bx2p(p) ;by2p(p) ;bz2p(p)]; 
 
    %-- differentiation with u v w 
-   jac(ind,5*N1+2:5*N1+4)       = - [ 0                 -(bz(p-1)-bz(p+1))   (by(p-1)-by(p+1))  ;
+   J(ind,5*N1+2:5*N1+4)       = - [ 0                 -(bz(p-1)-bz(p+1))   (by(p-1)-by(p+1))  ;
                                     (bz(p-1)-bz(p+1))       0             -(bx(p-1)-bx(p+1))  ;
                                       -(by(p-1)-by(p+1))  (bx(p-1)-bx(p+1))           0        ] ;  
 
-    jac(:,5*N1+2:5*N1+4) = -jac(:,5*N1+2:5*N1+4);
+    J(:,5*N1+2:5*N1+4) = -J(:,5*N1+2:5*N1+4);
                                           
     %======================================================================
  
-  
- F = f_b;
-  J = jac;
- err = sqrt(sum(f_b.^2)) ;  
+ err = sqrt(sum(F.^2)) ;  
  
    end

@@ -108,7 +108,7 @@ global bx by bz bxp byp bzp bx2p by2p bz2p bx4p by4p bz4p bext J2 fac bxm1 bym1 
     
   
   %----- Euler--Lagrange and Jacobian at the boundary points 
-  fac = 0.001;
+  fac = 0.0001;
   
   %== For studying the effect of aspect ratio on the lagrange multipliers
   %===

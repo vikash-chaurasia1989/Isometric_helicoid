@@ -285,8 +285,9 @@ jac(2*N1+1,ind) = -1/h*[bxp(N+1,1) byp(N+1,1) bzp(N+1,1)];
  
 bpp = bx2p.*bx2p + by2p.*by2p + bz2p.*bz2p;
 
-f_b(2*N1+5,1) =   fac/2*(h*(sum(bpp(1:N))) - 16*pi^4*n1^4) - E;
+%f_b(2*N1+5,1) =   fac/2*(h*(sum(bpp(1:N))) - 16*pi^4*n1^4) - E;
 
+f_b(2*N1+5,1) =   (asinh(n1*pi*sig))/(4*pi^3*n1^3)*(h*sum(bpp(1:N))/2 - 8*pi^4*n1^4)  - E;
 
 F = f_b;
 
